@@ -197,10 +197,13 @@ docker compose -f /opt/n8n/docker-compose.yml up -d
 #-----------------------------------------------------------------------------
 create_vhost() {
   local domain=$1 port=$2
-  cat >/etc/nginx/sites-available/${domain} <<CONF
+  cat >/etc/nginx/sites-available/"${domain}" <<CONF
 server {
   server_name ${domain};
   set \$upstream 127.0.0.1:${port};
+  add_header X-Frame-Options "SAMEORIGIN" always;
+  add_header X-Content-Type-Options "nosniff" always;
+  add_header Content-Security-Policy "default-src 'self';" always;
   underscores_in_headers on;
   location / {
     proxy_pass http://\$upstream;
@@ -217,7 +220,7 @@ server {
   listen 80;
 }
 CONF
-  ln -sf /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/${domain}
+  ln -sf /etc/nginx/sites-available/"${domain}" /etc/nginx/sites-enabled/"${domain}"
 }
 
 info "Criando virtual hosts Nginx..."
@@ -231,7 +234,7 @@ nginx -t && systemctl reload nginx
 #-----------------------------------------------------------------------------
 info "Emitindo certificados SSL..."
 for d in "$CHAT_DOMAIN" "$WAHA_DOMAIN" "$N8N_DOMAIN"; do
-  certbot --nginx --non-interactive --agree-tos -m "$EMAIL_SSL" -d "$d" --redirect
+  certbot --nginx --non-interactive --agree-tos -m "$EMAIL_SSL" -d "$d" --redirect --hsts
 done
 
 #-----------------------------------------------------------------------------
