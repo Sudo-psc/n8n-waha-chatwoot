@@ -1,7 +1,7 @@
 # Automação n8n + WAHA + Chatwoot
 
 Este repositório reúne scripts de instalação e manutenção para rodar **Chatwoot**, **WAHA** e **n8n** em um VPS Ubuntu utilizando Docker.
-O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SSL. Os demais arquivos tratam de firewall, segurança, backups e monitoramento.
+Antigamente a instalação era feita diretamente com `setup-wnc.sh`, mas a partir desta versão há também a ferramenta `wnc-cli.sh` que centraliza as tarefas de instalação, atualização e manutenção.
 
 ## Pré-requisitos
 
@@ -15,6 +15,7 @@ O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SS
 | Arquivo | Função |
 |---------|---------|
 
+| `wnc-cli.sh` | Ferramenta de linha de comando para instalar e gerenciar a stack |
 | `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker, configura Nginx e SSL |
 | `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
 | `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
@@ -28,6 +29,15 @@ O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SS
 
 
 ## Instruções de uso
+
+### wnc-cli.sh
+Ferramenta principal para instalar e gerenciar a stack. Exemplos:
+```bash
+sudo ./wnc-cli.sh install          # instala tudo
+sudo ./wnc-cli.sh update           # atualiza containers
+sudo ./wnc-cli.sh backup           # executa backup manual
+sudo ./wnc-cli.sh logs n8n         # mostra logs do serviço
+```
 
 ### setup-wnc.sh
 Executa toda a instalação base. Rode como root:
@@ -87,8 +97,8 @@ sudo ./nodejs-codex-installer.sh
    chmod +x *.sh
    ```
 2. (Opcional) Execute `firewall-setup.sh` e `security_hardening.sh` para preparar o sistema.
-3. Rode `setup-wnc.sh` para instalar Chatwoot, WAHA e n8n.
-4. Configure `backup-setup.sh`, `maintenance_setup.sh` e `monitoring_setup.sh` conforme necessidade.
+3. Utilize `wnc-cli.sh install` para instalar Chatwoot, WAHA e n8n.
+4. Execute `wnc-cli.sh update` e `wnc-cli.sh backup` sempre que necessário ou agende via cron.
 5. Utilize `check-services.sh` para validar que tudo está funcionando.
 
 Após a instalação, os serviços estarão disponíveis em:
