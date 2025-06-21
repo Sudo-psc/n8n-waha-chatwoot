@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
 # Configura UFW: libera SSH (22), HTTP (80) e HTTPS (443),
 # bloqueia acesso externo às portas 3000-3002 (usadas só pelo Nginx local)
-set -euo pipefail
 
-log(){ echo -e "\e[32m[UFW]\e[0m $*"; }
+# Structured logging ----------------------------------------------------------
+SCRIPT_NAME=$(basename "$0" .sh)
+LOG_FILE="/var/log/${SCRIPT_NAME}.log"
+mkdir -p "$(dirname "$LOG_FILE")" && touch "$LOG_FILE"
+log() { local level="$1"; shift; echo "$(date '+%F %T') [$level] $*" | tee -a "$LOG_FILE"; }
+info() { log INFO "$@"; }
+warn() { log WARN "$@"; }
+error() { log ERROR "$@"; }
+
+set -Eeuo pipefail
+trap 'error "Linha $LINENO: comando \"$BASH_COMMAND\" falhou"' ERR
+
+[[ $EUID -eq 0 ]] || { error "Rode como root"; exit 1; }
 
 apt-get update -qq
 apt-get install -y ufw >/dev/null
@@ -24,5 +35,5 @@ done
 
 # ativa
 echo y | ufw enable
-log "Status final:"
+info "Status final:"
 ufw status verbose
