@@ -102,9 +102,13 @@ done
 ###############################################################################
 info "Configurando Chatwoot..."
 write_config /opt/chatwoot/.env <<EOF
+NODE_ENV=production
 RAILS_ENV=production
+INSTALLATION_ENV=docker
 SECRET_KEY_BASE=$(openssl rand -hex 64)
 FRONTEND_URL=https://${CHAT_DOMAIN}
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
 POSTGRES_USER=chatwoot
 POSTGRES_PASSWORD=chatwoot
 POSTGRES_DB=chatwoot
@@ -121,12 +125,22 @@ RED
 write_config /opt/chatwoot/docker-compose.yml <<EOF
 version: "3.8"
 services:
-  chatwoot:
+  rails:
     image: chatwoot/chatwoot:latest
     env_file: .env
     depends_on: [postgres, redis]
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
     networks: [$STACK_NET]
     ports: ["3000:3000"]
+    restart: always
+  sidekiq:
+    image: chatwoot/chatwoot:latest
+    env_file: .env
+    depends_on: [postgres, redis]
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    networks: [$STACK_NET]
     restart: always
   postgres:
     image: postgres:13
@@ -153,7 +167,13 @@ volumes:
 EOF
 
 docker compose -f /opt/chatwoot/docker-compose.yml up -d
-docker compose -f /opt/chatwoot/docker-compose.yml run --rm chatwoot bundle exec rails db:chatwoot_prepare
+# Aguarda o Postgres responder antes de preparar o banco
+info "Aguardando Postgres..."
+until docker compose -f /opt/chatwoot/docker-compose.yml exec -T postgres \
+  pg_isready -h postgres -p 5432 -U chatwoot >/dev/null; do
+  sleep 2
+done
+docker compose -f /opt/chatwoot/docker-compose.yml run --rm rails bundle exec rails db:chatwoot_prepare
 
 ###############################################################################
 # 4B) WAHA
@@ -224,9 +244,6 @@ create_vhost() {
   local domain=$1 port=$2
 
   write_config "/etc/nginx/sites-available/${domain}" <<CONF
-
-  cat >/etc/nginx/sites-available/"${domain}" <<CONF
-
 server {
   server_name ${domain};
   set \$upstream 127.0.0.1:${port};
@@ -251,9 +268,6 @@ server {
 CONF
 
   ln -sf "/etc/nginx/sites-available/${domain}" "/etc/nginx/sites-enabled/${domain}"
-
-  ln -sf /etc/nginx/sites-available/"${domain}" /etc/nginx/sites-enabled/"${domain}"
-
 }
 
 info "Criando virtual hosts Nginx..."
