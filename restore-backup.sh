@@ -27,15 +27,25 @@ docker exec -e PGPASSWORD=chatwoot "$PG_ID" \
   pg_restore -U chatwoot -d chatwoot --clean --if-exists /tmp/restore.dump
 docker exec "$PG_ID" rm /tmp/restore.dump
 
-# 2) WAHA sessions ------------------------------------------------------------
+# 2) Redis Chatwoot -----------------------------------------------------------
+REDIS_ARCHIVE="${BACKUP_ROOT}/redis/chatwoot_redis_${DATE}.tar.gz"
+[[ -f "$REDIS_ARCHIVE" ]] || { echo "[ERRO] Arquivo $REDIS_ARCHIVE nao encontrado"; exit 1; }
+log "Restaurando Redis Chatwoot..."
+REDIS_ID=$(docker compose -f "$PG_COMPOSE" ps -q redis)
+docker compose -f "$PG_COMPOSE" stop redis
+docker run --rm --volumes-from "$REDIS_ID" -v "${BACKUP_ROOT}/redis:/backup" busybox \
+  sh -c "rm -rf /data/* && tar xzf /backup/chatwoot_redis_${DATE}.tar.gz -C /"
+docker compose -f "$PG_COMPOSE" start redis
+
+# 3) WAHA sessions ------------------------------------------------------------
 log "Restaurando sessões WAHA..."
 rsync -a --delete "${BACKUP_ROOT}/sessions/" /opt/waha/sessions/
 
-# 3) Dados n8n ---------------------------------------------------------------
+# 4) Dados n8n ---------------------------------------------------------------
 log "Restaurando dados n8n..."
 rsync -a --delete "${BACKUP_ROOT}/n8n/" /opt/n8n/n8n_data/
 
-# 4) Reinicia containers -----------------------------------------------------
+# 5) Reinicia containers -----------------------------------------------------
 log "Reiniciando serviços..."
 docker compose -f /opt/chatwoot/docker-compose.yml up -d
 docker compose -f /opt/waha/docker-compose.yml up -d
