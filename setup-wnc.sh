@@ -144,7 +144,7 @@ services:
     networks: [$STACK_NET]
     restart: always
   postgres:
-    image: postgres:13
+    image: pgvector/pgvector:pg13
     environment:
       POSTGRES_USER: chatwoot
       POSTGRES_PASSWORD: chatwoot
