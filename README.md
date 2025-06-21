@@ -19,6 +19,7 @@ Antigamente a instalação era feita diretamente com `setup-wnc.sh`, mas a parti
 | `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker, configura Nginx e SSL |
 | `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
 | `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
+| `fail2ban_setup.sh` | Instala e configura Fail2Ban (SSH e Nginx) |
 | `backup-setup.sh` | Agenda backup diário de Postgres e Redis do Chatwoot, sessões WAHA e dados do n8n |
 | `restore-backup.sh` | Restaura dados do backup em caso de falha |
 | `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
@@ -57,6 +58,12 @@ sudo ./firewall-setup.sh
 Aplica configurações de hardening de sistema e instala Fail2Ban:
 ```bash
 sudo ./security_hardening.sh
+```
+
+### fail2ban_setup.sh
+Instala e configura o Fail2Ban para monitorar acessos SSH e requisições Nginx:
+```bash
+sudo ./fail2ban_setup.sh
 ```
 
 ### backup-setup.sh
