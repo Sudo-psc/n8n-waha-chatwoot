@@ -158,6 +158,13 @@ sudo ./restore-backup.sh        # restaura o último backup
 sudo ./restore-backup.sh 20240630  # restaura um backup específico
 ```
 
+## Erro "secure cookie" no n8n
+
+Se ao abrir o n8n surgir a mensagem:
+"Your n8n server is configured to use a secure cookie, however you are either visiting this via an insecure URL, or using Safari",
+verifique se o acesso está sendo feito por HTTPS. Caso esteja rodando localmente e sem Safari, utilize `http://localhost:5678`.
+Se preferir desabilitar essa verificação (não recomendado), defina `N8N_SECURE_COOKIE=false` no arquivo `.env` do n8n.
+
 ## Contribuindo
 
 Relate problemas ou envie melhorias abrindo issues e pull requests neste
