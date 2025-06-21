@@ -14,14 +14,17 @@ O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SS
 
 | Arquivo | Função |
 |---------|---------|
-| `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker e configura Nginx + SSL |
-| `firewall-setup.sh` | Configura UFW abrindo 22/80/443 e bloqueando portas internas |
-| `security_hardening.sh` | Ativa `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
-| `backup-setup.sh` | Agenda backup diário do banco, sessões WAHA e dados do n8n |
-| `maintenance_setup.sh` | Sobe Watchtower e agenda `docker system prune` semanal |
-| `monitoring_setup.sh` | Instala node_exporter e cAdvisor para Prometheus |
-| `check-services.sh` | Testa portas e verifica se as URLs respondem |
-| `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs Codex e Codebuff |
+
+| `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker, configura Nginx e SSL |
+| `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
+| `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
+| `backup-setup.sh` | Agenda backup diário de Postgres, sessões WAHA e dados do n8n |
+| `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
+| `monitoring_setup.sh` | Instala `node_exporter` e cAdvisor para coleta via Prometheus |
+| `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
+| `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
+| `manual_maintenance.sh` | Atualiza containers, renova SSL e checa dependências |
+
 
 ## Instruções de uso
 
