@@ -1,7 +1,19 @@
 # Automação n8n + WAHA + Chatwoot
 
-Este repositório reúne scripts de instalação e manutenção para rodar **Chatwoot**, **WAHA** e **n8n** em um VPS Ubuntu utilizando Docker.
-Antigamente a instalação era feita diretamente com `setup-wnc.sh`, mas a partir desta versão há também a ferramenta `wnc-cli.sh` que centraliza as tarefas de instalação, atualização e manutenção.
+Scripts para instalar e manter **Chatwoot**, **WAHA** e **n8n** em um servidor
+Ubuntu utilizando Docker.  O projeto começou com o script `setup-wnc.sh` e foi
+evoluindo para a ferramenta `wnc-cli.sh`, que centraliza todas as tarefas de
+instalação, atualização e manutenção.
+
+## Índice
+
+1. [Pré‑requisitos](#pré-requisitos)
+2. [Configuração inicial](#configuração-inicial)
+3. [Scripts](#scripts)
+4. [Instruções de uso](#instruções-de-uso)
+5. [Fluxo de instalação recomendado](#fluxo-de-instalação-recomendado)
+6. [Restauração do backup](#restauração-do-backup)
+7. [Contribuindo](#contribuindo)
 
 ## Pré-requisitos
 
@@ -9,6 +21,21 @@ Antigamente a instalação era feita diretamente com `setup-wnc.sh`, mas a parti
 - Domínios DNS apontando para o servidor (`chat.saraivavision.com.br`, `waha.saraivavision.com.br` e `n8n.saraivavision.com.br`)
 - Portas 80 e 443 liberadas no firewall
 - Opcionalmente diretório de backup montado em `/mnt/backup`
+
+## Configuração inicial
+
+Edite o arquivo `setup-wnc.sh` caso deseje utilizar outros domínios ou e-mail
+para os certificados.  No início do script há quatro variáveis principais:
+
+```bash
+CHAT_DOMAIN="chat.exemplo.com"
+WAHA_DOMAIN="waha.exemplo.com"
+N8N_DOMAIN="n8n.exemplo.com"
+EMAIL_SSL="admin@exemplo.com"
+```
+
+Ajuste-as antes de executar a instalação para que os serviços sejam
+configurados com seus próprios domínios.
 
 ## Scripts
 
@@ -120,4 +147,19 @@ Após a instalação, os serviços estarão disponíveis em:
 - `https://chat.saraivavision.com.br`
 - `https://waha.saraivavision.com.br`
 - `https://n8n.saraivavision.com.br`
+
+## Restauração do backup
+
+Caso precise restaurar os dados, utilize o script `restore-backup.sh`.  Por
+padrão ele usa o backup mais recente presente em `/mnt/backup`:
+
+```bash
+sudo ./restore-backup.sh        # restaura o último backup
+sudo ./restore-backup.sh 20240630  # restaura um backup específico
+```
+
+## Contribuindo
+
+Relate problemas ou envie melhorias abrindo issues e pull requests neste
+repositório.  Sugestões são sempre bem‑vindas!
 
