@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 # Instala node_exporter (sistema) + cAdvisor (containers) para Prometheus
-set -euo pipefail
-log(){ echo -e "\e[96m[MON]\e[0m $*"; }
+
+# Structured logging ----------------------------------------------------------
+SCRIPT_NAME=$(basename "$0" .sh)
+LOG_FILE="/var/log/${SCRIPT_NAME}.log"
+mkdir -p "$(dirname "$LOG_FILE")" && touch "$LOG_FILE"
+log() { local level="$1"; shift; echo "$(date '+%F %T') [$level] $*" | tee -a "$LOG_FILE"; }
+info() { log INFO "$@"; }
+warn() { log WARN "$@"; }
+error() { log ERROR "$@"; }
+
+set -Eeuo pipefail
+trap 'error "Linha $LINENO: comando \"$BASH_COMMAND\" falhou"' ERR
+
+[[ $EUID -eq 0 ]] || { error "Rode como root"; exit 1; }
 
 # node_exporter ---------------------------------------------------------------
-log "Instalando node_exporter…"
+info "Instalando node_exporter…"
 useradd -rs /bin/false node_exporter 2>/dev/null || true
 VER="1.8.1"
 curl -L https://github.com/prometheus/node_exporter/releases/download/v${VER}/node_exporter-${VER}.linux-amd64.tar.gz \
@@ -22,9 +34,9 @@ EOF
 systemctl enable --now node_exporter
 
 # cAdvisor --------------------------------------------------------------------
-log "Subindo cAdvisor no Docker…"
+info "Subindo cAdvisor no Docker…"
 docker run -d --name=cadvisor --restart=unless-stopped \
   -p 8080:8080 -v /:/rootfs:ro -v /var/run:/var/run:ro \
   -v /sys:/sys:ro -v /var/lib/docker/:/var/lib/docker:ro \
   gcr.io/cadvisor/cadvisor:v0.49.1
-log "Monitoring up: node_exporter (9100) e cAdvisor (8080)."
+info "Monitoring up: node_exporter (9100) e cAdvisor (8080)."

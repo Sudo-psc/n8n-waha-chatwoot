@@ -1,22 +1,31 @@
 #!/usr/bin/env bash
 # Hardening: unattended-upgrades, SSH, Fail2Ban
+
+# Structured logging ----------------------------------------------------------
+SCRIPT_NAME=$(basename "$0" .sh)
+LOG_FILE="/var/log/${SCRIPT_NAME}.log"
+mkdir -p "$(dirname "$LOG_FILE")" && touch "$LOG_FILE"
+log() { local level="$1"; shift; echo "$(date '+%F %T') [$level] $*" | tee -a "$LOG_FILE"; }
+info() { log INFO "$@"; }
+warn() { log WARN "$@"; }
+error() { log ERROR "$@"; }
+
 set -Eeuo pipefail
-trap 'echo "[ERRO] $BASH_COMMAND (linha $LINENO)"; exit 1' ERR
+trap 'error "Linha $LINENO: comando \"$BASH_COMMAND\" falhou"' ERR
 
-log(){ echo -e "\e[32m[SEC]\e[0m $*"; }
-[[ $EUID -eq 0 ]] || { echo "[ERRO] Rode como root"; exit 1; }
+[[ $EUID -eq 0 ]] || { error "Rode como root"; exit 1; }
 
-log "Instalando unattended-upgrades…"
+info "Instalando unattended-upgrades…"
 DEBIAN_FRONTEND=noninteractive apt-get install -y unattended-upgrades >/dev/null
 dpkg-reconfigure --priority=low unattended-upgrades
 
-log "Endurecendo SSH…"
+info "Endurecendo SSH…"
 cp -a /etc/ssh/sshd_config{,.bak.$(date +%F)}
 sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config
 sed -i 's/^#\?PermitRootLogin .*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
 systemctl reload sshd
 
-log "Instalando Fail2Ban…"
+info "Instalando Fail2Ban…"
 apt-get install -y fail2ban >/dev/null
 cat >/etc/fail2ban/jail.local <<'EOF'
 [sshd]
@@ -31,4 +40,4 @@ port = http,https
 EOF
 systemctl enable --now fail2ban
 fail2ban-client status sshd
-log "Hardening concluído."
+info "Hardening concluído."
