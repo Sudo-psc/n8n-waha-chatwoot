@@ -18,7 +18,7 @@ O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SS
 | `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker, configura Nginx e SSL |
 | `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
 | `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
-| `backup-setup.sh` | Agenda backup diário de Postgres, sessões WAHA e dados do n8n |
+| `backup-setup.sh` | Agenda backup diário de Postgres e Redis do Chatwoot, sessões WAHA e dados do n8n |
 | `restore-backup.sh` | Restaura dados do backup em caso de falha |
 | `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
 | `monitoring_setup.sh` | Instala `node_exporter` e cAdvisor para coleta via Prometheus |
@@ -49,7 +49,7 @@ sudo ./security_hardening.sh
 ```
 
 ### backup-setup.sh
-Realiza o dump do banco e copia arquivos para `/mnt/backup`, além de criar um cron diário:
+Realiza o dump do Postgres, arquiva o Redis do Chatwoot e copia os dados do WAHA e n8n para `/mnt/backup`, além de criar um cron diário:
 ```bash
 sudo ./backup-setup.sh
 ```
