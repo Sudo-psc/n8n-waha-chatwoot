@@ -7,8 +7,18 @@
 #    n8n.saraivavision.com.br   → n8n
 #  Autor de contato: philipe_cruz@outlook.com
 ###############################################################################
+
+# Structured logging ----------------------------------------------------------
+SCRIPT_NAME=$(basename "$0" .sh)
+LOG_FILE="/var/log/${SCRIPT_NAME}.log"
+mkdir -p "$(dirname "$LOG_FILE")" && touch "$LOG_FILE"
+log() { local level="$1"; shift; echo "$(date '+%F %T') [$level] $*" | tee -a "$LOG_FILE"; }
+info() { log INFO "$@"; }
+warn() { log WARN "$@"; }
+error() { log ERROR "$@"; }
+
 set -Eeuo pipefail
-trap 'echo "[ERRO] Linha $LINENO: comando \"$BASH_COMMAND\" falhou"; exit 1' ERR
+trap 'error "Linha $LINENO: comando \"$BASH_COMMAND\" falhou"' ERR
 
 CHAT_DOMAIN="chat.saraivavision.com.br"
 WAHA_DOMAIN="waha.saraivavision.com.br"
@@ -19,8 +29,6 @@ STACK_NET="wcn_net"
 #-----------------------------------------------------------------------------
 # Funções utilitárias
 #-----------------------------------------------------------------------------
-log()   { echo -e "\e[1;32m[INFO]\e[0m $*"; }
-warn()  { echo -e "\e[1;33m[WARN]\e[0m $*"; }
 apt_install() {
   DEBIAN_FRONTEND=noninteractive apt-get install -y "$@" >/dev/null
 }
@@ -29,19 +37,19 @@ cmd_exists() { command -v "$1" &>/dev/null; }
 #-----------------------------------------------------------------------------
 # 0) Pré-requisitos
 #-----------------------------------------------------------------------------
-[[ $EUID -eq 0 ]] || { echo "[ERRO] Rode como root (sudo)"; exit 1; }
+[[ $EUID -eq 0 ]] || { error "Rode como root (sudo)"; exit 1; }
 grep -qi ubuntu /etc/os-release || warn "Sistema não Ubuntu — tente por sua conta e risco"
-log "Atualizando índice APT..."
+info "Atualizando índice APT..."
 apt-get update -qq
 
 #-----------------------------------------------------------------------------
 # 1) Docker & docker-compose-plugin
 #-----------------------------------------------------------------------------
 if ! cmd_exists docker; then
-  log "Instalando Docker Engine..."
+  info "Instalando Docker Engine..."
   curl -fsSL https://get.docker.com | sh >/dev/null
 else
-  log "Docker já instalado — pulando"
+  info "Docker já instalado — pulando"
 fi
 apt_install docker-compose-plugin
 systemctl enable --now docker
@@ -55,7 +63,7 @@ apt_install nginx certbot python3-certbot-nginx
 # 3) Rede Docker
 #-----------------------------------------------------------------------------
 if ! docker network inspect $STACK_NET &>/dev/null; then
-  log "Criando rede Docker $STACK_NET"
+  info "Criando rede Docker $STACK_NET"
   docker network create "$STACK_NET"
 fi
 
@@ -67,7 +75,7 @@ install -d -m 755 /opt/{chatwoot,waha,n8n}
 ###############################################################################
 # 4A) Chatwoot
 ###############################################################################
-log "Configurando Chatwoot..."
+info "Configurando Chatwoot..."
 cat >/opt/chatwoot/.env <<EOF
 RAILS_ENV=production
 SECRET_KEY_BASE=$(openssl rand -hex 64)
@@ -125,7 +133,7 @@ docker compose -f /opt/chatwoot/docker-compose.yml run --rm chatwoot bundle exec
 ###############################################################################
 # 4B) WAHA
 ###############################################################################
-log "Configurando WAHA..."
+info "Configurando WAHA..."
 cat >/opt/waha/.env <<EOF
 WHATSAPP_API_KEY=$(openssl rand -hex 32)
 WAHA_BASE_URL=https://${WAHA_DOMAIN}
@@ -156,7 +164,7 @@ docker compose -f /opt/waha/docker-compose.yml up -d
 ###############################################################################
 # 4C) n8n
 ###############################################################################
-log "Configurando n8n..."
+info "Configurando n8n..."
 cat >/opt/n8n/.env <<EOF
 N8N_HOST=${N8N_DOMAIN}
 N8N_PORT=5678
@@ -212,7 +220,7 @@ CONF
   ln -sf /etc/nginx/sites-available/${domain} /etc/nginx/sites-enabled/${domain}
 }
 
-log "Criando virtual hosts Nginx..."
+info "Criando virtual hosts Nginx..."
 create_vhost "$CHAT_DOMAIN" 3000
 create_vhost "$WAHA_DOMAIN" 3001
 create_vhost "$N8N_DOMAIN" 3002
@@ -221,7 +229,7 @@ nginx -t && systemctl reload nginx
 #-----------------------------------------------------------------------------
 # 6) Certificados Let's Encrypt
 #-----------------------------------------------------------------------------
-log "Emitindo certificados SSL..."
+info "Emitindo certificados SSL..."
 for d in "$CHAT_DOMAIN" "$WAHA_DOMAIN" "$N8N_DOMAIN"; do
   certbot --nginx --non-interactive --agree-tos -m "$EMAIL_SSL" -d "$d" --redirect
 done
