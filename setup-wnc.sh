@@ -34,6 +34,29 @@ apt_install() {
 }
 cmd_exists() { command -v "$1" &>/dev/null; }
 
+# cria diretório se não existir
+ensure_dir() {
+  if [[ -d $1 ]]; then
+    info "Diretório $1 já existe — pulando"
+  else
+    mkdir -p "$1"
+    chmod 755 "$1"
+  fi
+}
+
+# faz backup de arquivo existente e grava conteúdo
+write_config() {
+  local file=$1
+  shift
+  if [[ -f $file ]]; then
+    local bk
+    bk="${file}.bak.$(date +%s)"
+    warn "$file existe, backup em $bk"
+    cp "$file" "$bk"
+  fi
+  cat > "$file" "$@"
+}
+
 #-----------------------------------------------------------------------------
 # 0) Pré-requisitos
 #-----------------------------------------------------------------------------
@@ -70,13 +93,15 @@ fi
 #-----------------------------------------------------------------------------
 # 4) Estrutura de diretórios
 #-----------------------------------------------------------------------------
-install -d -m 755 /opt/{chatwoot,waha,n8n}
+for dir in /opt/chatwoot /opt/waha /opt/n8n; do
+  ensure_dir "$dir"
+done
 
 ###############################################################################
 # 4A) Chatwoot
 ###############################################################################
 info "Configurando Chatwoot..."
-cat >/opt/chatwoot/.env <<EOF
+write_config /opt/chatwoot/.env <<EOF
 NODE_ENV=production
 RAILS_ENV=production
 INSTALLATION_ENV=docker
@@ -90,14 +115,14 @@ POSTGRES_DB=chatwoot
 REDIS_URL=redis://redis:6379/0
 EOF
 
-cat >/opt/chatwoot/redis.conf <<'RED'
+write_config /opt/chatwoot/redis.conf <<'RED'
 appendonly yes
 save 900 1
 save 300 10
 save 60 10000
 RED
 
-cat >/opt/chatwoot/docker-compose.yml <<EOF
+write_config /opt/chatwoot/docker-compose.yml <<EOF
 version: "3.8"
 services:
   rails:
@@ -154,7 +179,7 @@ docker compose -f /opt/chatwoot/docker-compose.yml run --rm rails bundle exec ra
 # 4B) WAHA
 ###############################################################################
 info "Configurando WAHA..."
-cat >/opt/waha/.env <<EOF
+write_config /opt/waha/.env <<EOF
 WHATSAPP_API_KEY=$(openssl rand -hex 32)
 WAHA_BASE_URL=https://${WAHA_DOMAIN}
 WAHA_DASHBOARD_USERNAME=admin
@@ -163,7 +188,7 @@ WHATSAPP_SWAGGER_USERNAME=api
 WHATSAPP_SWAGGER_PASSWORD=$(openssl rand -hex 12)
 EOF
 
-cat >/opt/waha/docker-compose.yml <<EOF
+write_config /opt/waha/docker-compose.yml <<EOF
 version: "3.8"
 services:
   waha:
@@ -185,7 +210,7 @@ docker compose -f /opt/waha/docker-compose.yml up -d
 # 4C) n8n
 ###############################################################################
 info "Configurando n8n..."
-cat >/opt/n8n/.env <<EOF
+write_config /opt/n8n/.env <<EOF
 N8N_HOST=${N8N_DOMAIN}
 N8N_PORT=5678
 N8N_PROTOCOL=https
@@ -194,7 +219,7 @@ N8N_BASIC_AUTH_USER=admin
 N8N_BASIC_AUTH_PASSWORD=$(openssl rand -hex 12)
 EOF
 
-cat >/opt/n8n/docker-compose.yml <<EOF
+write_config /opt/n8n/docker-compose.yml <<EOF
 version: "3.8"
 services:
   n8n:
@@ -217,7 +242,8 @@ docker compose -f /opt/n8n/docker-compose.yml up -d
 #-----------------------------------------------------------------------------
 create_vhost() {
   local domain=$1 port=$2
-  cat >/etc/nginx/sites-available/"${domain}" <<CONF
+
+  write_config "/etc/nginx/sites-available/${domain}" <<CONF
 server {
   server_name ${domain};
   set \$upstream 127.0.0.1:${port};
@@ -240,7 +266,8 @@ server {
   listen 80;
 }
 CONF
-  ln -sf /etc/nginx/sites-available/"${domain}" /etc/nginx/sites-enabled/"${domain}"
+
+  ln -sf "/etc/nginx/sites-available/${domain}" "/etc/nginx/sites-enabled/${domain}"
 }
 
 info "Criando virtual hosts Nginx..."
