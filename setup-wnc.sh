@@ -282,8 +282,19 @@ nginx -t && systemctl reload nginx
 #-----------------------------------------------------------------------------
 info "Emitindo certificados SSL..."
 for d in "$CHAT_DOMAIN" "$WAHA_DOMAIN" "$N8N_DOMAIN"; do
-  certbot --nginx --non-interactive --agree-tos -m "$EMAIL_SSL" -d "$d" --redirect --hsts
+  certbot --nginx --non-interactive --agree-tos \
+    --no-eff-email -m "$EMAIL_SSL" -d "$d" --redirect --hsts \
+    --deploy-hook "systemctl reload nginx"
 done
+
+# agenda renovação automática
+RENEW_CRON="/etc/cron.d/certbot_renew"
+if [[ ! -f $RENEW_CRON ]]; then
+  echo "0 2 * * * root certbot renew --quiet --deploy-hook 'systemctl reload nginx'" \
+    > "$RENEW_CRON"
+  chmod 644 "$RENEW_CRON"
+  info "Cron diário de renovação criado em $RENEW_CRON"
+fi
 
 #-----------------------------------------------------------------------------
 # 7) Conclusão
