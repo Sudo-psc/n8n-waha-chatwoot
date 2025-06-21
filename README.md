@@ -20,6 +20,7 @@ O script principal `setup-wnc.sh` prepara toda a stack usando Docker, Nginx como
 | `monitoring_setup.sh` | Instala `node_exporter` e cAdvisor para coleta via Prometheus |
 | `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
 | `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
+| `manual_maintenance.sh` | Atualiza containers, renova SSL e checa dependências |
 
 ## Uso básico
 
