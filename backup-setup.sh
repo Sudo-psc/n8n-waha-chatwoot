@@ -19,7 +19,7 @@ BACKUP_ROOT="/mnt/backup"
 KEEP_DAYS=14
 PG_COMPOSE="/opt/chatwoot/docker-compose.yml"
 DATE=$(date +%F)
-mkdir -p ${BACKUP_ROOT}/{pg,sessions,n8n}
+mkdir -p ${BACKUP_ROOT}/{pg,redis,sessions,n8n}
 
 log(){ echo -e "\e[94m[BACKUP]\e[0m $*"; }
 
@@ -28,20 +28,26 @@ info "Dumpando banco Chatwoot…"
 PG_ID=$(docker compose -f $PG_COMPOSE ps -q postgres)
 docker exec -e PGPASSWORD=chatwoot "$PG_ID" pg_dump -U chatwoot -Fc chatwoot \
   > "${BACKUP_ROOT}/pg/chatwoot_${DATE}.dump"
+# 2) Redis Chatwoot ------------------------------------------------------------
+info "Copiando dados Redis do Chatwoot…"
+REDIS_ID=$(docker compose -f $PG_COMPOSE ps -q redis)
+docker exec "$REDIS_ID" redis-cli save
+docker run --rm --volumes-from "$REDIS_ID" -v "${BACKUP_ROOT}/redis:/backup" busybox \
+  tar czf "/backup/chatwoot_redis_${DATE}.tar.gz" /data
 
-# 2) WAHA sessions (inclui QR, mensagens não lidas, etc.) -------------------------
+# 3) WAHA sessions (inclui QR, mensagens não lidas, etc.) -------------------------
 info "Copiando sessões WAHA…"
 rsync -a --delete /opt/waha/sessions/ "${BACKUP_ROOT}/sessions/"
 
-# 3) Dados n8n (workflows, credenciais) -----------------------------------------
+# 4) Dados n8n (workflows, credenciais) -----------------------------------------
 info "Copiando dados n8n…"
 rsync -a --delete /opt/n8n/n8n_data/ "${BACKUP_ROOT}/n8n/"
 
-# 4) Rotação simples -------------------------------------------------------------
+# 5) Rotação simples -------------------------------------------------------------
 find "${BACKUP_ROOT}" -type f -mtime +"$KEEP_DAYS" -delete
 info "Backup concluído."
 
-# 5) Agendar no cron -------------------------------------------------------------
+# 6) Agendar no cron -------------------------------------------------------------
 CRON_JOB="/etc/cron.d/chatwoot_backup"
 if [[ ! -f $CRON_JOB ]]; then
   echo "0 3 * * * root /usr/local/bin/backup_setup.sh" > $CRON_JOB

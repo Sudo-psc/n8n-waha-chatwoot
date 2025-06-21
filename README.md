@@ -1,7 +1,7 @@
 # Automação n8n + WAHA + Chatwoot
 
 Este repositório reúne scripts de instalação e manutenção para rodar **Chatwoot**, **WAHA** e **n8n** em um VPS Ubuntu utilizando Docker.
-O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SSL. Os demais arquivos tratam de firewall, segurança, backups e monitoramento.
+Antigamente a instalação era feita diretamente com `setup-wnc.sh`, mas a partir desta versão há também a ferramenta `wnc-cli.sh` que centraliza as tarefas de instalação, atualização e manutenção.
 
 ## Pré-requisitos
 
@@ -15,20 +15,31 @@ O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SS
 | Arquivo | Função |
 |---------|---------|
 
+| `wnc-cli.sh` | Ferramenta de linha de comando para instalar e gerenciar a stack |
 | `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker, configura Nginx e SSL |
 | `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
 | `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
 | `fail2ban_setup.sh` | Instala e configura Fail2Ban (SSH e Nginx) |
-| `backup-setup.sh` | Agenda backup diário de Postgres, sessões WAHA e dados do n8n |
+| `backup-setup.sh` | Agenda backup diário de Postgres e Redis do Chatwoot, sessões WAHA e dados do n8n |
 | `restore-backup.sh` | Restaura dados do backup em caso de falha |
 | `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
-| `monitoring_setup.sh` | Instala `node_exporter` e cAdvisor para coleta via Prometheus |
+| `monitoring_setup.sh` | Instala `htop`, `node_exporter`, `cAdvisor`, Prometheus e Grafana |
 | `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
 | `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
 | `manual_maintenance.sh` | Atualiza containers, renova SSL e checa dependências |
+| `update-images.sh` | Atualiza as imagens Docker para versões específicas |
 
 
 ## Instruções de uso
+
+### wnc-cli.sh
+Ferramenta principal para instalar e gerenciar a stack. Exemplos:
+```bash
+sudo ./wnc-cli.sh install          # instala tudo
+sudo ./wnc-cli.sh update           # atualiza containers
+sudo ./wnc-cli.sh backup           # executa backup manual
+sudo ./wnc-cli.sh logs n8n         # mostra logs do serviço
+```
 
 ### setup-wnc.sh
 Executa toda a instalação base. Rode como root:
@@ -56,7 +67,7 @@ sudo ./fail2ban_setup.sh
 ```
 
 ### backup-setup.sh
-Realiza o dump do banco e copia arquivos para `/mnt/backup`, além de criar um cron diário:
+Realiza o dump do Postgres, arquiva o Redis do Chatwoot e copia os dados do WAHA e n8n para `/mnt/backup`, além de criar um cron diário:
 ```bash
 sudo ./backup-setup.sh
 ```
@@ -68,7 +79,8 @@ sudo ./maintenance_setup.sh
 ```
 
 ### monitoring_setup.sh
-Instala o node_exporter como serviço e executa o cAdvisor em container:
+Instala o `htop` para monitoramento rápido e sobe o stack Prometheus + Grafana \
+além dos exporters node_exporter e cAdvisor:
 ```bash
 sudo ./monitoring_setup.sh
 ```
@@ -85,6 +97,12 @@ Instala a versão LTS do Node.js e as ferramentas @openai/codex e Codebuff:
 sudo ./nodejs-codex-installer.sh
 ```
 
+### update-images.sh
+Atualiza as imagens Docker para as versões mais recentes ou uma tag específica:
+```bash
+sudo ./update-images.sh [chatwoot|waha|n8n|all] [tag]
+```
+
 ## Fluxo de instalação recomendado
 
 1. Clone este repositório no servidor e dê permissão de execução aos scripts:
@@ -94,8 +112,8 @@ sudo ./nodejs-codex-installer.sh
    chmod +x *.sh
    ```
 2. (Opcional) Execute `firewall-setup.sh` e `security_hardening.sh` para preparar o sistema.
-3. Rode `setup-wnc.sh` para instalar Chatwoot, WAHA e n8n.
-4. Configure `backup-setup.sh`, `maintenance_setup.sh` e `monitoring_setup.sh` conforme necessidade.
+3. Utilize `wnc-cli.sh install` para instalar Chatwoot, WAHA e n8n.
+4. Execute `wnc-cli.sh update` e `wnc-cli.sh backup` sempre que necessário ou agende via cron.
 5. Utilize `check-services.sh` para validar que tudo está funcionando.
 
 Após a instalação, os serviços estarão disponíveis em:
