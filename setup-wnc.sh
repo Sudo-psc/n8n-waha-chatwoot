@@ -77,9 +77,13 @@ install -d -m 755 /opt/{chatwoot,waha,n8n}
 ###############################################################################
 info "Configurando Chatwoot..."
 cat >/opt/chatwoot/.env <<EOF
+NODE_ENV=production
 RAILS_ENV=production
+INSTALLATION_ENV=docker
 SECRET_KEY_BASE=$(openssl rand -hex 64)
 FRONTEND_URL=https://${CHAT_DOMAIN}
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
 POSTGRES_USER=chatwoot
 POSTGRES_PASSWORD=chatwoot
 POSTGRES_DB=chatwoot
@@ -96,12 +100,22 @@ RED
 cat >/opt/chatwoot/docker-compose.yml <<EOF
 version: "3.8"
 services:
-  chatwoot:
+  rails:
     image: chatwoot/chatwoot:latest
     env_file: .env
     depends_on: [postgres, redis]
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
     networks: [$STACK_NET]
     ports: ["3000:3000"]
+    restart: always
+  sidekiq:
+    image: chatwoot/chatwoot:latest
+    env_file: .env
+    depends_on: [postgres, redis]
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    networks: [$STACK_NET]
     restart: always
   postgres:
     image: postgres:13
@@ -128,7 +142,7 @@ volumes:
 EOF
 
 docker compose -f /opt/chatwoot/docker-compose.yml up -d
-docker compose -f /opt/chatwoot/docker-compose.yml run --rm chatwoot bundle exec rails db:chatwoot_prepare
+docker compose -f /opt/chatwoot/docker-compose.yml run --rm rails bundle exec rails db:chatwoot_prepare
 
 ###############################################################################
 # 4B) WAHA
