@@ -22,7 +22,7 @@ Antigamente a instalação era feita diretamente com `setup-wnc.sh`, mas a parti
 | `backup-setup.sh` | Agenda backup diário de Postgres, sessões WAHA e dados do n8n |
 | `restore-backup.sh` | Restaura dados do backup em caso de falha |
 | `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
-| `monitoring_setup.sh` | Instala `node_exporter` e cAdvisor para coleta via Prometheus |
+| `monitoring_setup.sh` | Instala `htop`, `node_exporter`, `cAdvisor`, Prometheus e Grafana |
 | `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
 | `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
 | `manual_maintenance.sh` | Atualiza containers, renova SSL e checa dependências |
@@ -72,7 +72,8 @@ sudo ./maintenance_setup.sh
 ```
 
 ### monitoring_setup.sh
-Instala o node_exporter como serviço e executa o cAdvisor em container:
+Instala o `htop` para monitoramento rápido e sobe o stack Prometheus + Grafana \
+além dos exporters node_exporter e cAdvisor:
 ```bash
 sudo ./monitoring_setup.sh
 ```
