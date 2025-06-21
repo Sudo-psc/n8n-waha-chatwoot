@@ -25,6 +25,7 @@ O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SS
 | `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
 | `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
 | `manual_maintenance.sh` | Atualiza containers, renova SSL e checa dependências |
+| `update-images.sh` | Atualiza as imagens Docker para versões específicas |
 
 
 ## Instruções de uso
@@ -76,6 +77,12 @@ sudo ./check-services.sh
 Instala a versão LTS do Node.js e as ferramentas @openai/codex e Codebuff:
 ```bash
 sudo ./nodejs-codex-installer.sh
+```
+
+### update-images.sh
+Atualiza as imagens Docker para as versões mais recentes ou uma tag específica:
+```bash
+sudo ./update-images.sh [chatwoot|waha|n8n|all] [tag]
 ```
 
 ## Fluxo de instalação recomendado
