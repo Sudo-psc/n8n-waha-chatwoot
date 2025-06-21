@@ -16,6 +16,7 @@ O script principal `setup-wnc.sh` prepara toda a stack usando Docker, Nginx como
 | `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
 | `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
 | `backup-setup.sh` | Agenda backup diário de Postgres, sessões WAHA e dados do n8n |
+| `restore-backup.sh` | Restaura dados do backup em caso de falha |
 | `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
 | `monitoring_setup.sh` | Instala `node_exporter` e cAdvisor para coleta via Prometheus |
 | `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
