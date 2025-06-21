@@ -1,42 +1,94 @@
 # Automação n8n + WAHA + Chatwoot
 
-Este repositório contém scripts de instalação e manutenção para hospedar os seguintes serviços em um VPS Ubuntu:
+Este repositório reúne scripts de instalação e manutenção para rodar **Chatwoot**, **WAHA** e **n8n** em um VPS Ubuntu utilizando Docker.
+O script principal `setup-wnc.sh` monta toda a stack com Nginx e certificados SSL. Os demais arquivos tratam de firewall, segurança, backups e monitoramento.
 
-* **Chatwoot** – plataforma de atendimento multicanal
-* **WAHA** – API do WhatsApp em container Docker
-* **n8n** – automações e integrações
+## Pré-requisitos
 
-O script principal `setup-wnc.sh` prepara toda a stack usando Docker, Nginx como proxy reverso e certificados SSL do Let's Encrypt. Os demais arquivos são utilitários opcionais para backup, segurança e monitoramento.
+- Servidor Ubuntu 20.04 ou superior com acesso root
+- Domínios DNS apontando para o servidor (`chat.saraivavision.com.br`, `waha.saraivavision.com.br` e `n8n.saraivavision.com.br`)
+- Portas 80 e 443 liberadas no firewall
+- Opcionalmente diretório de backup montado em `/mnt/backup`
 
 ## Scripts
 
 | Arquivo | Função |
 |---------|---------|
-| `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker, configura Nginx e SSL |
-| `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
-| `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
-| `backup-setup.sh` | Agenda backup diário de Postgres, sessões WAHA e dados do n8n |
-| `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
-| `monitoring_setup.sh` | Instala `node_exporter` e cAdvisor para coleta via Prometheus |
-| `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
-| `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
+| `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker e configura Nginx + SSL |
+| `firewall-setup.sh` | Configura UFW abrindo 22/80/443 e bloqueando portas internas |
+| `security_hardening.sh` | Ativa `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
+| `backup-setup.sh` | Agenda backup diário do banco, sessões WAHA e dados do n8n |
+| `maintenance_setup.sh` | Sobe Watchtower e agenda `docker system prune` semanal |
+| `monitoring_setup.sh` | Instala node_exporter e cAdvisor para Prometheus |
+| `check-services.sh` | Testa portas e verifica se as URLs respondem |
+| `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs Codex e Codebuff |
 
-## Uso básico
+## Instruções de uso
 
-1. Clone este repositório em seu servidor Ubuntu 20.04 ou superior.
-2. Torne o script desejado executável: `chmod +x script.sh`.
-3. Execute como `root` (ou com `sudo`) o script principal ou utilitário.
-
-Exemplo para instalação completa:
-
+### setup-wnc.sh
+Executa toda a instalação base. Rode como root:
 ```bash
 sudo ./setup-wnc.sh
 ```
+Ao final, Chatwoot, WAHA e n8n ficarão acessíveis via HTTPS nos domínios configurados.
 
-Após a conclusão, os serviços estarão acessíveis em:
+### firewall-setup.sh
+Habilita o UFW permitindo apenas as portas necessárias:
+```bash
+sudo ./firewall-setup.sh
+```
 
+### security_hardening.sh
+Aplica configurações de hardening de sistema e instala Fail2Ban:
+```bash
+sudo ./security_hardening.sh
+```
+
+### backup-setup.sh
+Realiza o dump do banco e copia arquivos para `/mnt/backup`, além de criar um cron diário:
+```bash
+sudo ./backup-setup.sh
+```
+
+### maintenance_setup.sh
+Sobe o container Watchtower e agenda limpeza semanal do Docker:
+```bash
+sudo ./maintenance_setup.sh
+```
+
+### monitoring_setup.sh
+Instala o node_exporter como serviço e executa o cAdvisor em container:
+```bash
+sudo ./monitoring_setup.sh
+```
+
+### check-services.sh
+Mostra as portas em escuta e testa as URLs expostas:
+```bash
+sudo ./check-services.sh
+```
+
+### nodejs-codex-installer.sh
+Instala a versão LTS do Node.js e as ferramentas @openai/codex e Codebuff:
+```bash
+sudo ./nodejs-codex-installer.sh
+```
+
+## Fluxo de instalação recomendado
+
+1. Clone este repositório no servidor e dê permissão de execução aos scripts:
+   ```bash
+   git clone https://github.com/seu-usuario/n8n-waha-chatwoot.git
+   cd n8n-waha-chatwoot
+   chmod +x *.sh
+   ```
+2. (Opcional) Execute `firewall-setup.sh` e `security_hardening.sh` para preparar o sistema.
+3. Rode `setup-wnc.sh` para instalar Chatwoot, WAHA e n8n.
+4. Configure `backup-setup.sh`, `maintenance_setup.sh` e `monitoring_setup.sh` conforme necessidade.
+5. Utilize `check-services.sh` para validar que tudo está funcionando.
+
+Após a instalação, os serviços estarão disponíveis em:
 - `https://chat.saraivavision.com.br`
 - `https://waha.saraivavision.com.br`
 - `https://n8n.saraivavision.com.br`
 
-Consulte cada script para mais detalhes ou ajustes específicos.
