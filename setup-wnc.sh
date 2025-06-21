@@ -142,6 +142,12 @@ volumes:
 EOF
 
 docker compose -f /opt/chatwoot/docker-compose.yml up -d
+# Aguarda o Postgres responder antes de preparar o banco
+info "Aguardando Postgres..."
+until docker compose -f /opt/chatwoot/docker-compose.yml exec -T postgres \
+  pg_isready -h postgres -p 5432 -U chatwoot >/dev/null; do
+  sleep 2
+done
 docker compose -f /opt/chatwoot/docker-compose.yml run --rm rails bundle exec rails db:chatwoot_prepare
 
 ###############################################################################
