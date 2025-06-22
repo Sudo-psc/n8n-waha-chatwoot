@@ -281,9 +281,19 @@ nginx -t && systemctl reload nginx
 # 6) Certificados Let's Encrypt
 #-----------------------------------------------------------------------------
 info "Emitindo certificados SSL..."
-for d in "$CHAT_DOMAIN" "$WAHA_DOMAIN" "$N8N_DOMAIN"; do
-  certbot --nginx --non-interactive --agree-tos -m "$EMAIL_SSL" -d "$d" --redirect --hsts
-done
+certbot --nginx --non-interactive --agree-tos -m "$EMAIL_SSL" \
+  -d "$CHAT_DOMAIN" \
+  -d "$WAHA_DOMAIN" \
+  -d "$N8N_DOMAIN" \
+  --redirect --hsts --staple-ocsp --strict-permissions
+
+info "Verificando timer de renovação do Certbot..."
+if systemctl list-timers | grep -q 'certbot.timer'; then
+  info "Timer do Certbot (certbot.timer) encontrado e ativo."
+else
+  warn "Timer do Certbot (certbot.timer) não encontrado. A renovação automática pode não funcionar."
+  info "Para configurar a renovação automática, execute: sudo certbot renew --dry-run"
+fi
 
 #-----------------------------------------------------------------------------
 # 7) Conclusão
