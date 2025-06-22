@@ -54,6 +54,7 @@ configurados com seus próprios domínios.
 | `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
 | `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
 | `manual_maintenance.sh` | Atualiza containers, renova SSL e checa dependências |
+| `enable-http.sh` | Remove redirecionamentos HTTPS para liberar acesso HTTP |
 | `update-images.sh` | Atualiza as imagens Docker para versões específicas |
 
 
