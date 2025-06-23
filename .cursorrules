@@ -1,0 +1,16 @@
+# Projeto: Auto-installer Chatwoot + WAHA + n8n (Docker) com Nginx e HTTPS
+#
+# Etapas já realizadas:
+# - Instalação automatizada de Chatwoot, WAHA e n8n em containers Docker
+# - Configuração de Nginx como proxy reverso para cada serviço
+# - Emissão automática de certificados SSL Let's Encrypt para domínios específicos
+# - Criação de scripts utilitários e logs estruturados
+# - Correção das configurações do Nginx (remoção de duplicações, adição de IPv6, remoção do site padrão)
+#
+# Problema atual:
+# - HTTPS funciona localmente no servidor mas falha externamente com ERR_SSL_PROTOCOL_ERROR
+# - Erro: "31.97.129.78 sent an invalid response" - investigando protocolo SSL/firewall externo
+#
+# Última solicitação do usuário:
+# - Debug do servidor: investigar e corrigir o motivo da conexão HTTPS não estar funcionando
+# - Após depuração, constatado que apenas o HTTPS do WAHA está funcionando. Próximo passo: investigar Chatwoot e n8n. 

@@ -15,7 +15,10 @@ for dep in "${DEPS[@]}"; do
     echo "[ERRO] Dependência '$dep' não encontrada" >&2
     exit 1
   fi
-  "$dep" --version | head -n1
+  case "$dep" in
+    openssl) openssl version ;;
+    *) "$dep" --version | head -n1 ;;
+  esac
 done
 
 # Domínios utilizados nos testes
