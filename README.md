@@ -1,173 +1,289 @@
-# Automação n8n + WAHA + Chatwoot
+# WNC Stack - Chatwoot + WAHA + n8n
 
-Scripts para instalar e manter **Chatwoot**, **WAHA** e **n8n** em um servidor
-Ubuntu utilizando Docker.  O projeto começou com o script `setup-wnc.sh` e foi
-evoluindo para a ferramenta `wnc-cli.sh`, que centraliza todas as tarefas de
-instalação, atualização e manutenção.
+## 🚀 Versão 2.0 - Instalador Melhorado
 
-## Índice
+Sistema completo de automação com WhatsApp, CRM e workflows automatizados.
 
-1. [Pré‑requisitos](#pré-requisitos)
-2. [Configuração inicial](#configuração-inicial)
-3. [Scripts](#scripts)
-4. [Instruções de uso](#instruções-de-uso)
-5. [Fluxo de instalação recomendado](#fluxo-de-instalação-recomendado)
-6. [Restauração do backup](#restauração-do-backup)
-7. [Contribuindo](#contribuindo)
+### 📋 Componentes
 
-## Pré-requisitos
+- **[Chatwoot](https://www.chatwoot.com/)** - CRM e plataforma de atendimento multicanal
+- **[WAHA](https://waha.devlike.pro/)** - API HTTP para WhatsApp
+- **[n8n](https://n8n.io/)** - Plataforma de automação de workflows
 
-- Servidor Ubuntu 20.04 ou superior com acesso root
-- Domínios DNS apontando para o servidor (`chat.saraivavision.com.br`, `waha.saraivavision.com.br` e `n8n.saraivavision.com.br`)
-- Portas 80 e 443 liberadas no firewall
-- Opcionalmente diretório de backup montado em `/mnt/backup`
+### ✨ Novidades da v2.0
 
-## Configuração inicial
+- 🎨 **Interface Interativa** - Configuração guiada passo a passo
+- 🔐 **Gestão de Credenciais** - Senhas salvas com segurança
+- ✅ **Validações Robustas** - Verifica DNS, portas e recursos
+- 🔄 **Sistema de Rollback** - Recuperação automática em caso de erro
+- 🚀 **Instalação Modular** - Instale apenas o que precisa
+- 📊 **Monitoramento** - Ferramentas para acompanhar a saúde dos serviços
 
-Edite o arquivo `setup-wnc.sh` caso deseje utilizar outros domínios ou e-mail
-para os certificados.  No início do script há quatro variáveis principais:
+## 📦 Pré-requisitos
+
+- **Sistema Operacional:** Ubuntu 20.04+ ou Debian 10+
+- **Memória RAM:** Mínimo 2GB (recomendado 4GB+)
+- **Espaço em Disco:** Mínimo 10GB livres
+- **CPU:** Mínimo 2 cores
+- **Domínios:** 3 domínios apontando para o servidor
+- **Acesso:** Root ou sudo
+
+## 🛠️ Instalação Rápida
+
+### 1. Clone o repositório
 
 ```bash
-CHAT_DOMAIN="chat.exemplo.com"
-WAHA_DOMAIN="waha.exemplo.com"
-N8N_DOMAIN="n8n.exemplo.com"
-EMAIL_SSL="admin@exemplo.com"
+git clone https://github.com/seu-usuario/wnc-stack.git
+cd wnc-stack
+chmod +x *.sh
 ```
 
-Ajuste-as antes de executar a instalação para que os serviços sejam
-configurados com seus próprios domínios.
+### 2. Execute o instalador
 
-## Scripts
-
-| Arquivo | Função |
-|---------|---------|
-
-| `wnc-cli.sh` | Ferramenta de linha de comando para instalar e gerenciar a stack |
-| `setup-wnc.sh` | Instala Chatwoot, WAHA e n8n via Docker, configura Nginx e SSL |
-| `firewall-setup.sh` | Ativa UFW liberando 22/80/443 e bloqueando portas internas |
-| `security_hardening.sh` | Configura `unattended-upgrades`, ajusta SSH e instala Fail2Ban |
-| `fail2ban_setup.sh` | Instala e configura Fail2Ban (SSH e Nginx) |
-| `backup-setup.sh` | Agenda backup diário de Postgres e Redis do Chatwoot, sessões WAHA e dados do n8n |
-| `restore-backup.sh` | Restaura dados do backup em caso de falha |
-| `maintenance_setup.sh` | Inicia Watchtower e cria `cron` semanal para `docker system prune` |
-| `monitoring_setup.sh` | Instala `htop`, `node_exporter`, `cAdvisor`, Prometheus e Grafana |
-| `check-services.sh` | Verifica portas abertas e testa as URLs públicas |
-| `nodejs-codex-installer.sh` | Instala Node.js LTS e as CLIs do Codex e Codebuff |
-| `manual_maintenance.sh` | Atualiza containers, renova SSL e checa dependências |
-| `enable-http.sh` | Remove redirecionamentos HTTPS para liberar acesso HTTP |
-| `update-images.sh` | Atualiza as imagens Docker para versões específicas |
-
-
-## Instruções de uso
-
-### wnc-cli.sh
-Ferramenta principal para instalar e gerenciar a stack. Exemplos:
-```bash
-sudo ./wnc-cli.sh install          # instala tudo
-sudo ./wnc-cli.sh update           # atualiza containers
-sudo ./wnc-cli.sh backup           # executa backup manual
-sudo ./wnc-cli.sh logs n8n         # mostra logs do serviço
-```
-
-### setup-wnc.sh
-Executa toda a instalação base. Rode como root:
+#### Modo Interativo (Recomendado)
 ```bash
 sudo ./setup-wnc.sh
 ```
-Ao final, Chatwoot, WAHA e n8n ficarão acessíveis via HTTPS nos domínios configurados.
 
-### firewall-setup.sh
-Habilita o UFW permitindo apenas as portas necessárias:
+#### Modo Automático
+```bash
+sudo ./setup-wnc.sh \
+  --chat-domain=chat.example.com \
+  --waha-domain=waha.example.com \
+  --n8n-domain=n8n.example.com \
+  --email=admin@example.com
+```
+
+### 3. Valide a instalação
+```bash
+sudo ./test-installation.sh
+```
+
+## 🎯 Opções de Instalação
+
+### Instalação Completa
+```bash
+sudo ./setup-wnc.sh
+# Selecione opção 1 no menu
+```
+
+### Apenas Chatwoot
+```bash
+sudo ./setup-wnc.sh --components=chatwoot \
+  --chat-domain=chat.example.com \
+  --email=admin@example.com
+```
+
+### Apenas WAHA
+```bash
+sudo ./setup-wnc.sh --components=waha \
+  --waha-domain=waha.example.com \
+  --email=admin@example.com
+```
+
+### Apenas n8n
+```bash
+sudo ./setup-wnc.sh --components=n8n \
+  --n8n-domain=n8n.example.com \
+  --email=admin@example.com
+```
+
+## 🔧 Gerenciamento com WNC-CLI
+
+### Comandos Principais
+
+```bash
+# Ver status de todos os serviços
+./wnc-cli.sh status
+
+# Ver credenciais salvas
+./wnc-cli.sh credentials
+
+# Monitorar recursos em tempo real
+./wnc-cli.sh monitor
+
+# Ver logs de um serviço
+./wnc-cli.sh logs chatwoot
+./wnc-cli.sh logs waha
+./wnc-cli.sh logs n8n
+
+# Reiniciar um serviço
+./wnc-cli.sh restart chatwoot
+
+# Fazer backup
+./wnc-cli.sh backup
+
+# Executar comando em container
+./wnc-cli.sh exec n8n bash
+```
+
+## 🔐 Credenciais e Acessos
+
+Após a instalação, as credenciais são salvas em `/root/.wnc-credentials`.
+
+Para visualizar:
+```bash
+sudo ./wnc-cli.sh credentials
+```
+
+### Acessar Chatwoot
+
+1. Acesse: `https://chat.seu-dominio.com`
+2. Crie o primeiro usuário admin:
+```bash
+sudo docker compose -f /opt/chatwoot/docker-compose.yml run --rm rails bundle exec rails c
+```
+No console Rails:
+```ruby
+User.create!(name: 'Admin', email: 'admin@example.com', password: 'senha123', confirmed_at: Time.now)
+```
+
+### Acessar WAHA
+
+1. Acesse: `https://waha.seu-dominio.com`
+2. Use as credenciais mostradas pelo comando `credentials`
+3. Conecte seu WhatsApp escaneando o QR Code
+
+### Acessar n8n
+
+1. Acesse: `https://n8n.seu-dominio.com`
+2. Use as credenciais mostradas pelo comando `credentials`
+3. Crie seus workflows de automação
+
+## 📊 Monitoramento e Manutenção
+
+### Verificar Saúde dos Serviços
+```bash
+# Status completo
+./wnc-cli.sh status
+
+# Monitoramento em tempo real
+./wnc-cli.sh monitor
+
+# Teste completo da instalação
+sudo ./test-installation.sh
+```
+
+### Atualizar Serviços
+```bash
+# Atualiza todos os containers e renova certificados
+./wnc-cli.sh update
+```
+
+### Backup e Restauração
+
+#### Backup Manual
+```bash
+./wnc-cli.sh backup
+```
+
+#### Backup Automático
+O sistema configura backup diário às 3:00 AM automaticamente.
+
+#### Restaurar Backup
+```bash
+# Restaurar último backup
+./wnc-cli.sh restore latest
+
+# Restaurar backup específico
+./wnc-cli.sh restore 2024-01-15
+```
+
+## 🛡️ Segurança Adicional
+
+### 1. Configurar Firewall
 ```bash
 sudo ./firewall-setup.sh
 ```
 
-### security_hardening.sh
-Aplica configurações de hardening de sistema e instala Fail2Ban:
-```bash
-sudo ./security_hardening.sh
-```
-
-### fail2ban_setup.sh
-Instala e configura o Fail2Ban para monitorar acessos SSH e requisições Nginx:
+### 2. Instalar Fail2ban
 ```bash
 sudo ./fail2ban_setup.sh
 ```
 
-### backup-setup.sh
-Realiza o dump do Postgres, arquiva o Redis do Chatwoot e copia os dados do WAHA e n8n para `/mnt/backup`, além de criar um cron diário:
+### 3. Hardening do Sistema
 ```bash
-sudo ./backup-setup.sh
+sudo ./security_hardening.sh
 ```
 
-### maintenance_setup.sh
-Sobe o container Watchtower e agenda limpeza semanal do Docker:
-```bash
-sudo ./maintenance_setup.sh
-```
-
-### monitoring_setup.sh
-Instala o `htop` para monitoramento rápido e sobe o stack Prometheus + Grafana \
-além dos exporters node_exporter e cAdvisor:
+### 4. Configurar Monitoramento
 ```bash
 sudo ./monitoring_setup.sh
 ```
 
-### check-services.sh
-Mostra as portas em escuta e testa as URLs expostas:
-```bash
-sudo ./check-services.sh
-```
+## 🐛 Solução de Problemas
 
-### nodejs-codex-installer.sh
-Instala a versão LTS do Node.js e as ferramentas @openai/codex e Codebuff:
-```bash
-sudo ./nodejs-codex-installer.sh
-```
-
-### update-images.sh
-Atualiza as imagens Docker para as versões mais recentes ou uma tag específica:
-```bash
-sudo ./update-images.sh [chatwoot|waha|n8n|all] [tag]
-```
-
-## Fluxo de instalação recomendado
-
-1. Clone este repositório no servidor e dê permissão de execução aos scripts:
-   ```bash
-   git clone https://github.com/seu-usuario/n8n-waha-chatwoot.git
-   cd n8n-waha-chatwoot
-   chmod +x *.sh
-   ```
-2. (Opcional) Execute `firewall-setup.sh` e `security_hardening.sh` para preparar o sistema.
-3. Utilize `wnc-cli.sh install` para instalar Chatwoot, WAHA e n8n.
-4. Execute `wnc-cli.sh update` e `wnc-cli.sh backup` sempre que necessário ou agende via cron.
-5. Utilize `check-services.sh` para validar que tudo está funcionando.
-
-Após a instalação, os serviços estarão disponíveis em:
-- `https://chat.saraivavision.com.br`
-- `https://waha.saraivavision.com.br`
-- `https://n8n.saraivavision.com.br`
-
-## Restauração do backup
-
-Caso precise restaurar os dados, utilize o script `restore-backup.sh`.  Por
-padrão ele usa o backup mais recente presente em `/mnt/backup`:
+### Logs Detalhados
 
 ```bash
-sudo ./restore-backup.sh        # restaura o último backup
-sudo ./restore-backup.sh 20240630  # restaura um backup específico
+# Logs da instalação
+sudo cat /var/log/setup-wnc.log
+
+# Logs de um serviço específico
+./wnc-cli.sh logs chatwoot --tail=100
+
+# Logs do Nginx
+sudo tail -f /var/log/nginx/error.log
 ```
 
-## Erro "secure cookie" no n8n
+### Problemas Comuns
 
-Se ao abrir o n8n surgir a mensagem:
-"Your n8n server is configured to use a secure cookie, however you are either visiting this via an insecure URL, or using Safari",
-verifique se o acesso está sendo feito por HTTPS. Caso esteja rodando localmente e sem Safari, utilize `http://localhost:5678`.
-Se preferir desabilitar essa verificação (não recomendado), defina `N8N_SECURE_COOKIE=false` no arquivo `.env` do n8n.
+#### 1. Erro de DNS
+- Verifique se os domínios apontam para o IP correto
+- Use `--skip-dns` para pular verificação durante testes
 
-## Contribuindo
+#### 2. Porta em Uso
+- Verifique portas com: `sudo ss -tuln | grep -E ':(80|443|3000|3001|3002)'`
+- Pare serviços conflitantes antes da instalação
 
-Relate problemas ou envie melhorias abrindo issues e pull requests neste
-repositório.  Sugestões são sempre bem‑vindas!
+#### 3. Certificado SSL Falhando
+- Verifique se a porta 80 está acessível externamente
+- Use `--skip-ssl` para instalação sem HTTPS (não recomendado para produção)
+
+## 📚 Scripts Incluídos
+
+| Script | Descrição |
+|--------|-----------|
+| `setup-wnc.sh` | Instalador principal (v2.0) |
+| `wnc-cli.sh` | CLI para gerenciamento |
+| `test-installation.sh` | Validação completa da instalação |
+| `backup-setup.sh` | Configuração de backups |
+| `restore-backup.sh` | Restauração de backups |
+| `manual_maintenance.sh` | Manutenção e atualizações |
+| `firewall-setup.sh` | Configuração de firewall |
+| `fail2ban_setup.sh` | Proteção contra força bruta |
+| `security_hardening.sh` | Hardening de segurança |
+| `monitoring_setup.sh` | Setup de monitoramento |
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Por favor:
+
+1. Fork o projeto
+2. Crie sua feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📝 Changelog
+
+Veja [CHANGELOG.md](CHANGELOG.md) para lista detalhada de mudanças.
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 👥 Autores
+
+- **Philipe Cruz** - *Desenvolvimento inicial* - [philipe_cruz@outlook.com](mailto:philipe_cruz@outlook.com)
+
+## 🙏 Agradecimentos
+
+- Equipe Chatwoot pela excelente plataforma
+- Desenvolvedores do WAHA pela API WhatsApp
+- Comunidade n8n pelos workflows incríveis
+
+---
+
+**Nota:** Este é um projeto em constante evolução. Sugestões e melhorias são sempre bem-vindas!
 
