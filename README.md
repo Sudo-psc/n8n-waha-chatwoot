@@ -24,18 +24,24 @@ instalação, atualização e manutenção.
 
 ## Configuração inicial
 
-Edite o arquivo `setup-wnc.sh` caso deseje utilizar outros domínios ou e-mail
-para os certificados.  No início do script há quatro variáveis principais:
+Os domínios e o e-mail para os certificados podem ser definidos por variáveis de
+ambiente ou opções passadas ao `setup-wnc.sh`. Valores padrões:
 
 ```bash
-CHAT_DOMAIN="chat.exemplo.com"
-WAHA_DOMAIN="waha.exemplo.com"
-N8N_DOMAIN="n8n.exemplo.com"
-EMAIL_SSL="admin@exemplo.com"
+CHAT_DOMAIN=chat.saraivavision.com.br
+WAHA_DOMAIN=waha.saraivavision.com.br
+N8N_DOMAIN=n8n.saraivavision.com.br
+EMAIL_SSL=philipe_cruz@outlook.com
 ```
 
-Ajuste-as antes de executar a instalação para que os serviços sejam
-configurados com seus próprios domínios.
+Exemplo de execução personalizando domínios e e-mail:
+
+```bash
+CHAT_DOMAIN=chat.exemplo.com \
+WAHA_DOMAIN=waha.exemplo.com \
+N8N_DOMAIN=n8n.exemplo.com \
+sudo ./setup-wnc.sh -e admin@exemplo.com
+```
 
 ## Scripts
 

@@ -20,10 +20,46 @@ error() { log ERROR "$@"; }
 set -Eeuo pipefail
 trap 'error "Linha $LINENO: comando \"$BASH_COMMAND\" falhou"' ERR
 
-CHAT_DOMAIN="chat.saraivavision.com.br"
-WAHA_DOMAIN="waha.saraivavision.com.br"
-N8N_DOMAIN="n8n.saraivavision.com.br"
-EMAIL_SSL="philipe_cruz@outlook.com"
+###############################################################################
+# Configuração - pode ser sobrescrita via opções ou variáveis de ambiente
+###############################################################################
+# Valores padrão
+CHAT_DOMAIN_DEFAULT="chat.saraivavision.com.br"
+WAHA_DOMAIN_DEFAULT="waha.saraivavision.com.br"
+N8N_DOMAIN_DEFAULT="n8n.saraivavision.com.br"
+EMAIL_SSL_DEFAULT="philipe_cruz@outlook.com"
+
+# Permite definir valores pelas variáveis ou opções
+CHAT_DOMAIN="${CHAT_DOMAIN:-$CHAT_DOMAIN_DEFAULT}"
+WAHA_DOMAIN="${WAHA_DOMAIN:-$WAHA_DOMAIN_DEFAULT}"
+N8N_DOMAIN="${N8N_DOMAIN:-$N8N_DOMAIN_DEFAULT}"
+EMAIL_SSL="${EMAIL_SSL:-$EMAIL_SSL_DEFAULT}"
+
+usage() {
+  cat <<USAGE
+Uso: $0 [opções]
+  -c DOM  Domínio do Chatwoot (padrão: $CHAT_DOMAIN_DEFAULT)
+  -w DOM  Domínio do WAHA (padrão: $WAHA_DOMAIN_DEFAULT)
+  -n DOM  Domínio do n8n (padrão: $N8N_DOMAIN_DEFAULT)
+  -e MAIL E-mail para SSL (padrão: $EMAIL_SSL_DEFAULT)
+  -h      Mostra esta ajuda e sai
+Também é possível definir CHAT_DOMAIN, WAHA_DOMAIN, N8N_DOMAIN e EMAIL_SSL
+como variáveis de ambiente.
+USAGE
+  exit 0
+}
+
+while getopts "c:w:n:e:h" opt; do
+  case $opt in
+    c) CHAT_DOMAIN=$OPTARG ;;
+    w) WAHA_DOMAIN=$OPTARG ;;
+    n) N8N_DOMAIN=$OPTARG ;;
+    e) EMAIL_SSL=$OPTARG ;;
+    h) usage ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
 STACK_NET="wcn_net"
 
 #-----------------------------------------------------------------------------
