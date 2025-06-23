@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 ###############################################################################
 #  Auto-installer: Chatwoot + WAHA + n8n (Docker) com Nginx e HTTPS
@@ -247,35 +248,74 @@ create_vhost() {
 
   write_config "/etc/nginx/sites-available/${domain}" <<CONF
 server {
-  server_name ${domain};
-  set \$upstream 127.0.0.1:${port};
-  add_header X-Frame-Options "SAMEORIGIN" always;
-  add_header X-Content-Type-Options "nosniff" always;
-  add_header Content-Security-Policy "default-src 'self';" always;
-  underscores_in_headers on;
-  location / {
-    proxy_pass http://\$upstream;
-    proxy_set_header Upgrade \$http_upgrade;
-    proxy_set_header Connection "upgrade";
-    proxy_set_header Host \$host;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_buffering off;
-    client_max_body_size 0;
-    proxy_read_timeout 36000s;
-  }
-  listen 80;
+    listen 80;
+    listen [::]:80;
+    server_name ${domain};
+    
+    # Redirecionar todo tráfego HTTP para HTTPS
+    return 301 https://\$server_name\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${domain};
+
+    ssl_certificate /etc/letsencrypt/live/${domain}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${domain}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Content-Security-Policy "default-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:;" always;
+    underscores_in_headers on;
+
+    set \$upstream 127.0.0.1:${port};
+    location / {
+        proxy_pass http://\$upstream;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$host;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_buffering off;
+        client_max_body_size 0;
+        proxy_read_timeout 36000s;
+    }
 }
 CONF
 
   ln -sf "/etc/nginx/sites-available/${domain}" "/etc/nginx/sites-enabled/${domain}"
 }
 
-info "Criando virtual hosts Nginx..."
-create_vhost "$CHAT_DOMAIN" 3000
-create_vhost "$WAHA_DOMAIN" 3001
-create_vhost "$N8N_DOMAIN" 3002
+# Criar configurações básicas primeiro para obter certificados
+create_basic_vhost() {
+  local domain=$1 port=$2
+  write_config "/etc/nginx/sites-available/${domain}" <<CONF
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${domain};
+    
+    location / {
+        proxy_pass http://127.0.0.1:${port};
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+CONF
+  ln -sf "/etc/nginx/sites-available/${domain}" "/etc/nginx/sites-enabled/${domain}"
+}
+
+info "Criando configurações básicas do Nginx..."
+create_basic_vhost "$CHAT_DOMAIN" 3000
+create_basic_vhost "$WAHA_DOMAIN" 3001
+create_basic_vhost "$N8N_DOMAIN" 3002
 nginx -t && systemctl reload nginx
 
 #-----------------------------------------------------------------------------
@@ -288,6 +328,15 @@ for d in "$CHAT_DOMAIN" "$WAHA_DOMAIN" "$N8N_DOMAIN"; do
     --deploy-hook "systemctl reload nginx"
 done
 
+#-----------------------------------------------------------------------------
+# 6B) Configurações finais do Nginx com CSP corrigida
+#-----------------------------------------------------------------------------
+info "Atualizando configurações do Nginx com segurança aprimorada..."
+create_vhost "$CHAT_DOMAIN" 3000
+create_vhost "$WAHA_DOMAIN" 3001
+create_vhost "$N8N_DOMAIN" 3002
+nginx -t && systemctl reload nginx
+
 # agenda renovação automática
 RENEW_CRON="/etc/cron.d/certbot_renew"
 if [[ ! -f $RENEW_CRON ]]; then
@@ -298,10 +347,161 @@ if [[ ! -f $RENEW_CRON ]]; then
 fi
 
 #-----------------------------------------------------------------------------
-# 7) Conclusão
+# 7) Scripts de teste e utilitários
 #-----------------------------------------------------------------------------
-echo -e "\n\033[1;32mInstalação concluída com sucesso!\033[0m"
+info "Criando scripts de teste..."
+
+# Script de teste do WAHA
+write_config "/root/test-waha-dashboard.sh" <<'WAHA_TEST'
+#!/bin/bash
+
+# Script para testar o dashboard do WAHA
+# Criado para verificar se todas as funcionalidades estão funcionando
+
+echo "🔍 Testando Dashboard do WAHA..."
+echo "================================"
+
+# Teste 1: Página principal do dashboard
+echo "1️⃣ Testando página principal do dashboard..."
+response=$(curl -s -o /dev/null -w "%{http_code}" https://waha.saraivavision.com.br/dashboard/)
+if [ "$response" = "200" ]; then
+    echo "✅ Dashboard principal: OK (HTTP $response)"
+else
+    echo "❌ Dashboard principal: ERRO (HTTP $response)"
+fi
+
+# Teste 2: Recursos CSS
+echo "2️⃣ Testando recursos CSS..."
+css_response=$(curl -s -o /dev/null -w "%{http_code}" https://waha.saraivavision.com.br/dashboard/_nuxt/entry.*.css)
+if [ "$css_response" = "200" ]; then
+    echo "✅ CSS: OK (HTTP $css_response)"
+else
+    echo "❌ CSS: ERRO (HTTP $css_response)"
+fi
+
+# Teste 3: API do WAHA
+echo "3️⃣ Testando API do WAHA..."
+api_response=$(curl -s -o /dev/null -w "%{http_code}" https://waha.saraivavision.com.br/api/sessions)
+if [ "$api_response" = "200" ]; then
+    echo "✅ API: OK (HTTP $api_response)"
+else
+    echo "❌ API: ERRO (HTTP $api_response)"
+fi
+
+echo ""
+echo "🎯 Teste completo finalizado!"
+echo "🌐 https://waha.saraivavision.com.br/dashboard/"
+WAHA_TEST
+
+# Script de teste do Chatwoot
+write_config "/root/test-chatwoot.sh" <<'CHAT_TEST'
+#!/bin/bash
+
+# Script para testar o Chatwoot
+# Criado para verificar se todas as funcionalidades estão funcionando
+
+echo "🔍 Testando Chatwoot..."
+echo "====================="
+
+# Teste 1: Página principal
+echo "1️⃣ Testando página principal..."
+response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.saraivavision.com.br/)
+if [ "$response" = "200" ]; then
+    echo "✅ Página principal: OK (HTTP $response)"
+else
+    echo "❌ Página principal: ERRO (HTTP $response)"
+fi
+
+# Teste 2: API do Chatwoot
+echo "2️⃣ Testando API do Chatwoot..."
+api_response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.saraivavision.com.br/api/v1/profile)
+if [ "$api_response" = "401" ] || [ "$api_response" = "200" ]; then
+    echo "✅ API: OK (HTTP $api_response - esperado 401 sem autenticação)"
+else
+    echo "❌ API: ERRO (HTTP $api_response)"
+fi
+
+# Teste 3: Redirecionamento HTTP para HTTPS
+echo "3️⃣ Testando redirecionamento HTTP → HTTPS..."
+redirect_response=$(curl -s -o /dev/null -w "%{http_code}" http://chat.saraivavision.com.br/)
+if [ "$redirect_response" = "301" ]; then
+    echo "✅ Redirecionamento: OK (HTTP $redirect_response)"
+else
+    echo "❌ Redirecionamento: ERRO (HTTP $redirect_response)"
+fi
+
+echo ""
+echo "🎯 Teste completo finalizado!"
+echo "🌐 https://chat.saraivavision.com.br/"
+CHAT_TEST
+
+# Script de verificação geral
+write_config "/root/check-services.sh" <<'CHECK_SERVICES'
+#!/bin/bash
+
+# Verificação geral dos serviços
+echo "🔍 Verificando todos os serviços..."
+echo "=================================="
+
+echo "📋 Status dos containers:"
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+echo ""
+echo "🌐 Testando URLs:"
+
+# Teste Chatwoot
+chat_status=$(curl -s -o /dev/null -w "%{http_code}" https://chat.saraivavision.com.br)
+if [ "$chat_status" = "200" ]; then
+    echo "✅ Chatwoot: https://chat.saraivavision.com.br (HTTP $chat_status)"
+else
+    echo "❌ Chatwoot: https://chat.saraivavision.com.br (HTTP $chat_status)"
+fi
+
+# Teste WAHA
+waha_status=$(curl -s -o /dev/null -w "%{http_code}" https://waha.saraivavision.com.br)
+if [ "$waha_status" = "200" ]; then
+    echo "✅ WAHA: https://waha.saraivavision.com.br (HTTP $waha_status)"
+else
+    echo "❌ WAHA: https://waha.saraivavision.com.br (HTTP $waha_status)"
+fi
+
+# Teste n8n
+n8n_status=$(curl -s -o /dev/null -w "%{http_code}" https://n8n.saraivavision.com.br)
+if [ "$n8n_status" = "200" ] || [ "$n8n_status" = "401" ]; then
+    echo "✅ n8n: https://n8n.saraivavision.com.br (HTTP $n8n_status)"
+else
+    echo "❌ n8n: https://n8n.saraivavision.com.br (HTTP $n8n_status)"
+fi
+
+echo ""
+echo "🎯 Verificação concluída!"
+CHECK_SERVICES
+
+chmod +x /root/test-waha-dashboard.sh /root/test-chatwoot.sh /root/check-services.sh
+info "Scripts de teste criados em /root/"
+
+#-----------------------------------------------------------------------------
+# 8) Conclusão
+#-----------------------------------------------------------------------------
+echo -e "\n\033[1;32m🎉 Instalação concluída com sucesso!\033[0m"
+echo "📋 URLs de acesso:"
 echo " • Chatwoot:  https://${CHAT_DOMAIN}"
 echo " • WAHA:      https://${WAHA_DOMAIN}"
 echo " • n8n:       https://${N8N_DOMAIN}"
-echo "Entre no WAHA, leia o QR code do WhatsApp, depois crie os fluxos no n8n."
+echo ""
+echo "🔧 Scripts úteis criados:"
+echo " • /root/check-services.sh       - Verificação geral dos serviços"
+echo " • /root/test-chatwoot.sh        - Teste completo do Chatwoot"
+echo " • /root/test-waha-dashboard.sh  - Teste completo do WAHA"
+echo ""
+echo "📖 Configurações aplicadas:"
+echo " • ✅ CSP otimizada para aplicações JavaScript modernas"
+echo " • ✅ Redirecionamento HTTP → HTTPS automático"
+echo " • ✅ Cabeçalhos de segurança configurados"
+echo " • ✅ Renovação automática de certificados SSL"
+echo ""
+echo "🚀 Próximos passos:"
+echo "1. Execute: /root/check-services.sh para verificar se tudo está funcionando"
+echo "2. Acesse o WAHA e leia o QR code do WhatsApp"
+echo "3. Configure suas automatizações no n8n"
+echo "4. Configure sua conta no Chatwoot"

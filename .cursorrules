@@ -1,16 +1,62 @@
 # Projeto: Auto-installer Chatwoot + WAHA + n8n (Docker) com Nginx e HTTPS
-#
-# Etapas já realizadas:
-# - Instalação automatizada de Chatwoot, WAHA e n8n em containers Docker
-# - Configuração de Nginx como proxy reverso para cada serviço
-# - Emissão automática de certificados SSL Let's Encrypt para domínios específicos
-# - Criação de scripts utilitários e logs estruturados
-# - Correção das configurações do Nginx (remoção de duplicações, adição de IPv6, remoção do site padrão)
-#
-# Problema atual:
-# - HTTPS funciona localmente no servidor mas falha externamente com ERR_SSL_PROTOCOL_ERROR
-# - Erro: "31.97.129.78 sent an invalid response" - investigando protocolo SSL/firewall externo
-#
-# Última solicitação do usuário:
-# - Debug do servidor: investigar e corrigir o motivo da conexão HTTPS não estar funcionando
-# - Após depuração, constatado que apenas o HTTPS do WAHA está funcionando. Próximo passo: investigar Chatwoot e n8n. 
+
+## Status Atual: ✅ TOTALMENTE OPERACIONAL
+
+### Etapas Concluídas:
+1. **Instalação Automatizada** ✅
+   - Chatwoot, WAHA e n8n instalados em containers Docker
+   - Rede Docker `wcn_net` criada para comunicação entre serviços
+   - Volumes persistentes configurados para dados
+
+2. **Configuração Nginx** ✅
+   - Nginx configurado como proxy reverso para cada serviço
+   - Virtual hosts criados para cada subdomínio
+   - Portas mapeadas corretamente (3000, 3001, 3002)
+
+3. **Certificados SSL** ✅
+   - Certificados Let's Encrypt emitidos automaticamente
+   - Válidos até 19/09/2025
+   - Renovação automática configurada via cron
+
+4. **Redirecionamento HTTP → HTTPS** ✅
+   - Problema de redirecionamento corrigido
+   - Todo tráfego HTTP agora redireciona para HTTPS (301)
+   - HSTS habilitado para segurança adicional
+   - Configuração do WAHA corrigida - removida página padrão nginx
+   - Dashboard do WAHA funcionando corretamente com CSP ajustada
+
+5. **Scripts Utilitários Criados** ✅
+   - `setup-wnc.sh` - Instalador principal (ATUALIZADO com CSP e redirecionamentos corretos)
+   - `check-services.sh` - Verificação de status dos serviços
+   - `manual_maintenance.sh` - Manutenção manual (atualização de imagens, renovação SSL)
+   - `ssl-diagnostics.sh` - Diagnóstico completo de SSL e roteamento
+   - `fix-http-redirect.sh` - Correção de redirecionamento HTTP/HTTPS
+   - `update-images.sh` - Atualização de imagens Docker
+   - `wnc-cli.sh` - CLI para gerenciamento
+   - `test-waha-dashboard.sh` - Teste completo do dashboard WAHA
+   - `test-chatwoot.sh` - Teste completo do Chatwoot
+   - `diagnose-sni.sh` - Diagnóstico completo de SNI e SSL
+   - `fix-waha-webhook.sh` - Correção de problemas webhook WAHA→n8n
+   - `setup-n8n-webhook.sh` - Instruções para configurar webhook no n8n
+   - Scripts de backup e restore
+
+### URLs de Acesso:
+- **Chatwoot:** https://chat.saraivavision.com.br ✅
+- **WAHA:** https://waha.saraivavision.com.br ✅
+- **n8n:** https://n8n.saraivavision.com.br ✅
+
+### Informações Técnicas:
+- **Servidor:** 31.97.129.78
+- **Sistema:** Ubuntu
+- **Docker:** v28.2.2
+- **Nginx:** v1.24.0
+- **Domínios:** Todos apontando corretamente para o servidor
+
+### Próximos Passos Recomendados:
+1. Ativar firewall UFW para segurança adicional
+2. Configurar fail2ban para bloquear tentativas de invasão
+3. Implementar monitoramento com alertas
+4. Configurar backups automáticos regulares
+
+### Contato:
+- **Autor:** philipe_cruz@outlook.com 

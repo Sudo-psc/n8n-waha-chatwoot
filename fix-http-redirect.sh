@@ -101,13 +101,6 @@ EOF
     success "Configuração atualizada para $domain"
 done
 
-# Definir portas dos serviços
-declare -A SERVICE_PORTS=(
-    ["chat.saraivavision.com.br"]="3000"
-    ["waha.saraivavision.com.br"]="3001"
-    ["n8n.saraivavision.com.br"]="3002"
-)
-
 # Reprocessar com as portas corretas
 for domain in "${DOMAINS[@]}"; do
     config_file="/etc/nginx/sites-available/$domain"
