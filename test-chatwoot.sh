@@ -8,7 +8,7 @@ echo "====================="
 
 # Teste 1: Página principal
 echo "1️⃣ Testando página principal..."
-response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.saraivavision.com.br/)
+response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.example.com/)
 if [ "$response" = "200" ]; then
     echo "✅ Página principal: OK (HTTP $response)"
 else
@@ -17,7 +17,7 @@ fi
 
 # Teste 2: Recursos JavaScript
 echo "2️⃣ Testando recursos JavaScript..."
-js_response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.saraivavision.com.br/vite/assets/dashboard-BPcVpBrL.js)
+js_response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.example.com/vite/assets/dashboard-BPcVpBrL.js)
 if [ "$js_response" = "200" ]; then
     echo "✅ JavaScript: OK (HTTP $js_response)"
 else
@@ -26,7 +26,7 @@ fi
 
 # Teste 3: Recursos CSS
 echo "3️⃣ Testando recursos CSS..."
-css_response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.saraivavision.com.br/vite/assets/dashboard-nJnDTnT0.css)
+css_response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.example.com/vite/assets/dashboard-nJnDTnT0.css)
 if [ "$css_response" = "200" ]; then
     echo "✅ CSS: OK (HTTP $css_response)"
 else
@@ -35,7 +35,7 @@ fi
 
 # Teste 4: API do Chatwoot
 echo "4️⃣ Testando API do Chatwoot..."
-api_response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.saraivavision.com.br/api/v1/accounts)
+api_response=$(curl -s -o /dev/null -w "%{http_code}" https://chat.example.com/api/v1/accounts)
 if [ "$api_response" = "401" ] || [ "$api_response" = "200" ]; then
     echo "✅ API: OK (HTTP $api_response - esperado 401 sem autenticação)"
 else
@@ -44,7 +44,7 @@ fi
 
 # Teste 5: Redirecionamento HTTP para HTTPS
 echo "5️⃣ Testando redirecionamento HTTP → HTTPS..."
-redirect_response=$(curl -s -o /dev/null -w "%{http_code}" http://chat.saraivavision.com.br/)
+redirect_response=$(curl -s -o /dev/null -w "%{http_code}" http://chat.example.com/)
 if [ "$redirect_response" = "301" ]; then
     echo "✅ Redirecionamento: OK (HTTP $redirect_response)"
 else
@@ -53,7 +53,7 @@ fi
 
 # Teste 6: Verificação de cabeçalhos de segurança
 echo "6️⃣ Verificando cabeçalhos de segurança..."
-headers=$(curl -s -I https://chat.saraivavision.com.br/ | grep -E "(Content-Security-Policy|X-Frame-Options|Strict-Transport-Security)")
+headers=$(curl -s -I https://chat.example.com/ | grep -E "(Content-Security-Policy|X-Frame-Options|Strict-Transport-Security)")
 if [[ $headers == *"Content-Security-Policy"* ]]; then
     echo "✅ Content-Security-Policy: Configurado"
 else
@@ -72,4 +72,4 @@ fi
 echo ""
 echo "🎯 Teste completo finalizado!"
 echo "Agora você pode testar manualmente no navegador:"
-echo "🌐 https://chat.saraivavision.com.br/" 
+echo "🌐 https://chat.example.com/" 

@@ -3,11 +3,11 @@
 ## 🌐 URLs de Acesso
 
 ### Chatwoot
-- **URL:** https://chat.saraivavision.com.br
+- **URL:** https://chat.example.com
 - **Tipo de autenticação:** Sistema próprio (criar conta no primeiro acesso)
 
 ### WAHA (WhatsApp HTTP API)
-- **URL:** https://waha.saraivavision.com.br
+- **URL:** https://waha.example.com
  - **Dashboard:**
   - Usuário: `admin`
   - Senha: **[REMOVIDO]**
@@ -16,14 +16,14 @@
   - Senha: **[REMOVIDO]**
 
 ### n8n
-- **URL:** https://n8n.saraivavision.com.br
+- **URL:** https://n8n.example.com
  - **Usuário:** `admin`
  - **Senha:** **[REMOVIDO]**
 
 ## ⚠️ Importante
 
 1. **Sempre use HTTPS** - os links HTTP redirecionam automaticamente
-2. **Use os domínios**, não o IP direto (31.97.129.78)
+2. **Use os domínios**, não o IP direto (203.0.113.10)
 3. Se aparecer erro de conexão, limpe o cache do navegador
 4. Para problemas de acesso, tente uma aba anônima/privada
 

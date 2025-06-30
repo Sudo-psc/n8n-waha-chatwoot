@@ -74,9 +74,9 @@
 - **Certbot**: 1.0+
 
 #### Domínios Suportados:
-- `chat.saraivavision.com.br` → Chatwoot
-- `waha.saraivavision.com.br` → WAHA  
-- `n8n.saraivavision.com.br` → n8n
+- `chat.example.com` → Chatwoot
+- `waha.example.com` → WAHA  
+- `n8n.example.com` → n8n
 
 ### 🚀 Instruções de Uso
 

@@ -9,14 +9,14 @@ echo "================================================"
 # Verificar status atual dos webhooks
 echo ""
 echo "📋 Status Atual dos Webhooks no WAHA:"
-waha_webhooks=$(curl -s https://waha.saraivavision.com.br/api/sessions | jq -r '.[0].config.webhooks[].url')
+waha_webhooks=$(curl -s https://waha.example.com/api/sessions | jq -r '.[0].config.webhooks[].url')
 echo "$waha_webhooks"
 
 echo ""
 echo "🧪 Testando Conectividade:"
 
 # Teste de conectividade básica com n8n
-n8n_status=$(curl -s -o /dev/null -w "%{http_code}" https://n8n.saraivavision.com.br/)
+n8n_status=$(curl -s -o /dev/null -w "%{http_code}" https://n8n.example.com/)
 if [[ $n8n_status == "200" ]] || [[ $n8n_status == "401" ]]; then
     echo "✅ n8n acessível: HTTP $n8n_status"
 else
@@ -28,7 +28,7 @@ echo ""
 echo "🔍 Analisando Webhooks Configurados:"
 
 # Para cada webhook configurado no WAHA
-curl -s https://waha.saraivavision.com.br/api/sessions | jq -r '.[0].config.webhooks[].url' | while read webhook_url; do
+curl -s https://waha.example.com/api/sessions | jq -r '.[0].config.webhooks[].url' | while read webhook_url; do
     if [[ -n "$webhook_url" ]]; then
         echo ""
         echo "📍 Testando: $webhook_url"
@@ -65,7 +65,7 @@ echo ""
 echo "📝 Para corrigir o problema de webhook:"
 echo ""
 echo "1️⃣ Opção 1 - Reconfigurar o webhook no n8n:"
-echo "   • Acesse: https://n8n.saraivavision.com.br"
+echo "   • Acesse: https://n8n.example.com"
 echo "   • Edite o workflow que usa este webhook"
 echo "   • Configure o trigger de webhook para aceitar POST"
 echo "   • Ou use 'Webhook' em vez de 'Webhook (for testing)'"
@@ -77,7 +77,7 @@ echo "   • Configure para aceitar POST"
 echo "   • Copie a nova URL e atualize no WAHA"
 echo ""
 echo "3️⃣ Opção 3 - Comando para gerar novo webhook:"
-echo "   curl -X POST https://waha.saraivavision.com.br/api/sessions/default/webhooks \\"
+echo "   curl -X POST https://waha.example.com/api/sessions/default/webhooks \\"
 echo "     -H 'Content-Type: application/json' \\"
 echo "     -d '{\"url\": \"NOVA_URL_DO_WEBHOOK\", \"events\": [\"message\"]}'"
 

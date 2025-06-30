@@ -33,7 +33,7 @@ echo ""
 info "Verificando conectividade..."
 
 # Teste n8n
-n8n_status=$(curl -s -o /dev/null -w "%{http_code}" https://n8n.saraivavision.com.br/)
+n8n_status=$(curl -s -o /dev/null -w "%{http_code}" https://n8n.example.com/)
 if [[ $n8n_status == "200" ]]; then
     success "n8n acessível: HTTP $n8n_status"
 else
@@ -44,7 +44,7 @@ fi
 # Verificar configuração atual do WAHA
 echo ""
 info "Verificando configuração atual do WAHA..."
-current_webhooks=$(curl -s https://waha.saraivavision.com.br/api/sessions | jq -r '.[0].config.webhooks[].url')
+current_webhooks=$(curl -s https://waha.example.com/api/sessions | jq -r '.[0].config.webhooks[].url')
 echo "Webhooks configurados:"
 echo "$current_webhooks"
 
@@ -69,13 +69,13 @@ info "Implementando correção temporária..."
 
 # Parar sessão
 info "Parando sessão do WAHA..."
-curl -s -X POST https://waha.saraivavision.com.br/api/sessions/default/stop >/dev/null
+curl -s -X POST https://waha.example.com/api/sessions/default/stop >/dev/null
 
 sleep 3
 
 # Configurar com webhook que funciona (httpbin para teste)
 info "Configurando webhook temporário para teste..."
-start_response=$(curl -s -X POST https://waha.saraivavision.com.br/api/sessions/default/start \
+start_response=$(curl -s -X POST https://waha.example.com/api/sessions/default/start \
   -H "Content-Type: application/json" \
   -d '{
     "name": "default",
@@ -103,7 +103,7 @@ sleep 10
 info "Testando webhook temporário..."
 for i in {1..3}; do
     echo "Tentativa $i/3..."
-    waha_status=$(curl -s https://waha.saraivavision.com.br/api/sessions | jq -r '.[0].status')
+    waha_status=$(curl -s https://waha.example.com/api/sessions | jq -r '.[0].status')
     if [[ $waha_status == "WORKING" ]]; then
         success "WAHA funcionando"
         break
@@ -132,7 +132,7 @@ else
 fi
 
 # Status final
-final_status=$(curl -s https://waha.saraivavision.com.br/api/sessions | jq -r '.[0].status')
+final_status=$(curl -s https://waha.example.com/api/sessions | jq -r '.[0].status')
 if [[ $final_status == "WORKING" ]]; then
     success "Status final: $final_status"
 else
@@ -145,7 +145,7 @@ echo "==========================================="
 
 echo ""
 echo "1️⃣ CONFIGURAR WEBHOOK NO N8N:"
-echo "   🌐 Acesse: https://n8n.saraivavision.com.br"
+echo "   🌐 Acesse: https://n8n.example.com"
 echo "   🔑 Login: admin / $(grep N8N_BASIC_AUTH_PASSWORD /opt/n8n/.env | cut -d'=' -f2)"
 echo "   📋 Crie workflow com trigger 'Webhook'"
 echo "   ⚙️  Configure HTTP Method: POST"
@@ -154,20 +154,20 @@ echo "   🔄 ATIVE o workflow (toggle superior direito)"
 echo ""
 echo "2️⃣ OBTER URL DO WEBHOOK:"
 echo "   📋 Copie a 'Production URL' do webhook"
-echo "   📝 Exemplo: https://n8n.saraivavision.com.br/webhook/NOVO_ID"
+echo "   📝 Exemplo: https://n8n.example.com/webhook/NOVO_ID"
 
 echo ""
 echo "3️⃣ CONFIGURAR NO WAHA:"
-webhook_config_cmd='curl -X POST https://waha.saraivavision.com.br/api/sessions/default/stop
+webhook_config_cmd='curl -X POST https://waha.example.com/api/sessions/default/stop
 sleep 3
-curl -X POST https://waha.saraivavision.com.br/api/sessions/default/start \
+curl -X POST https://waha.example.com/api/sessions/default/start \
   -H "Content-Type: application/json" \
   -d "{
     \"name\": \"default\",
     \"config\": {
       \"webhooks\": [
         {
-          \"url\": \"https://n8n.saraivavision.com.br/webhook/SEU_NOVO_WEBHOOK_ID\",
+          \"url\": \"https://n8n.example.com/webhook/SEU_NOVO_WEBHOOK_ID\",
           \"events\": [\"message\", \"session.status\"]
         }
       ]

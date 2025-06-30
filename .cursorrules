@@ -41,12 +41,12 @@
    - Scripts de backup e restore
 
 ### URLs de Acesso:
-- **Chatwoot:** https://chat.saraivavision.com.br ✅
-- **WAHA:** https://waha.saraivavision.com.br ✅
-- **n8n:** https://n8n.saraivavision.com.br ✅
+- **Chatwoot:** https://chat.example.com ✅
+- **WAHA:** https://waha.example.com ✅
+- **n8n:** https://n8n.example.com ✅
 
 ### Informações Técnicas:
-- **Servidor:** 31.97.129.78
+- **Servidor:** 203.0.113.10
 - **Sistema:** Ubuntu
 - **Docker:** v28.2.2
 - **Nginx:** v1.24.0

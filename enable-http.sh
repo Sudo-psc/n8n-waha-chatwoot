@@ -7,9 +7,9 @@ trap 'echo "[ERRO] Linha $LINENO: comando \"$BASH_COMMAND\" falhou" >&2' ERR
 [[ $EUID -eq 0 ]] || { echo "[ERRO] Rode como root"; exit 1; }
 
 domains=(
-  "chat.saraivavision.com.br"
-  "waha.saraivavision.com.br"
-  "n8n.saraivavision.com.br"
+  "chat.example.com"
+  "waha.example.com"
+  "n8n.example.com"
 )
 
 for d in "${domains[@]}"; do

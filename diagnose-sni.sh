@@ -36,7 +36,7 @@ echo ""
 echo "🌐 Domínios Configurados:"
 
 # Lista de domínios
-domains=("chat.saraivavision.com.br" "waha.saraivavision.com.br" "n8n.saraivavision.com.br")
+domains=("chat.example.com" "waha.example.com" "n8n.example.com")
 
 for domain in "${domains[@]}"; do
     echo ""
@@ -113,7 +113,7 @@ echo ""
 echo "🧪 Teste de SNI via IP:"
 
 # Testar acesso via IP com diferentes hostnames
-server_ip="31.97.129.78"
+server_ip="203.0.113.10"
 echo "Testando SNI via IP ($server_ip):"
 
 for domain in "${domains[@]}"; do

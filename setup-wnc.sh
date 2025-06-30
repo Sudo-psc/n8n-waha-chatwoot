@@ -86,6 +86,10 @@ INSTALL_COMPONENTS=()
 SKIP_DNS_CHECK=false
 SKIP_CERT_GENERATION=false
 DRY_RUN=false
+WAHA_DASH_USER=""
+WAHA_DASH_PASS=""
+N8N_USER=""
+N8N_PASS=""
 
 #-----------------------------------------------------------------------------
 # Funções utilitárias
@@ -310,11 +314,17 @@ interactive_setup() {
     if [[ " ${INSTALL_COMPONENTS[@]} " =~ " waha " ]]; then
         read -p "Domínio para WAHA [$DEFAULT_WAHA_DOMAIN]: " WAHA_DOMAIN
         WAHA_DOMAIN=${WAHA_DOMAIN:-$DEFAULT_WAHA_DOMAIN}
+        read -p "Usuário do dashboard WAHA [admin]: " WAHA_DASH_USER
+        WAHA_DASH_USER=${WAHA_DASH_USER:-admin}
+        read -p "Senha do dashboard WAHA (vazio para gerar): " WAHA_DASH_PASS
     fi
-    
+
     if [[ " ${INSTALL_COMPONENTS[@]} " =~ " n8n " ]]; then
         read -p "Domínio para n8n [$DEFAULT_N8N_DOMAIN]: " N8N_DOMAIN
         N8N_DOMAIN=${N8N_DOMAIN:-$DEFAULT_N8N_DOMAIN}
+        read -p "Usuário do n8n [admin]: " N8N_USER
+        N8N_USER=${N8N_USER:-admin}
+        read -p "Senha do n8n (vazio para gerar): " N8N_PASS
     fi
     
     # Email para SSL
@@ -338,6 +348,8 @@ interactive_setup() {
     [[ " ${INSTALL_COMPONENTS[@]} " =~ " waha " ]] && echo "WAHA: https://$WAHA_DOMAIN"
     [[ " ${INSTALL_COMPONENTS[@]} " =~ " n8n " ]] && echo "n8n: https://$N8N_DOMAIN"
     echo "Email SSL: $EMAIL_SSL"
+    [[ " ${INSTALL_COMPONENTS[@]} " =~ " waha " ]] && echo "WAHA usuário: $WAHA_DASH_USER"
+    [[ " ${INSTALL_COMPONENTS[@]} " =~ " n8n " ]] && echo "n8n usuário: $N8N_USER"
     echo "=============================="
     echo
     read -p "Confirma instalação? (s/N): " confirm
@@ -573,12 +585,13 @@ install_waha() {
     
     # Gera credenciais
     local api_key=$(openssl rand -hex 32)
-    local dash_pass=$(openssl rand -hex 12)
+    local dash_pass=${WAHA_DASH_PASS:-$(openssl rand -hex 12)}
     local swagger_pass=$(openssl rand -hex 12)
+    WAHA_DASH_USER=${WAHA_DASH_USER:-admin}
     
     # Salva credenciais
     save_credentials "waha" "api_key" "$api_key"
-    save_credentials "waha" "dashboard_user" "admin"
+    save_credentials "waha" "dashboard_user" "$WAHA_DASH_USER"
     save_credentials "waha" "dashboard_password" "$dash_pass"
     save_credentials "waha" "swagger_user" "api"
     save_credentials "waha" "swagger_password" "$swagger_pass"
@@ -591,7 +604,7 @@ WHATSAPP_API_KEY=$api_key
 WAHA_BASE_URL=https://${WAHA_DOMAIN}
 
 # Dashboard Authentication
-WAHA_DASHBOARD_USERNAME=admin
+WAHA_DASHBOARD_USERNAME=$WAHA_DASH_USER
 WAHA_DASHBOARD_PASSWORD=$dash_pass
 
 # Swagger Authentication
@@ -654,11 +667,12 @@ install_n8n() {
     ensure_dir /opt/n8n
     
     # Gera credenciais
-    local basic_auth_pass=$(openssl rand -hex 12)
+    local basic_auth_pass=${N8N_PASS:-$(openssl rand -hex 12)}
+    N8N_USER=${N8N_USER:-admin}
     local encryption_key=$(openssl rand -hex 16)
     
     # Salva credenciais
-    save_credentials "n8n" "user" "admin"
+    save_credentials "n8n" "user" "$N8N_USER"
     save_credentials "n8n" "password" "$basic_auth_pass"
     save_credentials "n8n" "encryption_key" "$encryption_key"
     save_credentials "n8n" "url" "https://$N8N_DOMAIN"
@@ -673,7 +687,7 @@ WEBHOOK_URL=https://${N8N_DOMAIN}
 
 # Authentication
 N8N_BASIC_AUTH_ACTIVE=true
-N8N_BASIC_AUTH_USER=admin
+N8N_BASIC_AUTH_USER=$N8N_USER
 N8N_BASIC_AUTH_PASSWORD=$basic_auth_pass
 
 # Security
@@ -978,7 +992,7 @@ show_credentials() {
         local waha_dash_pass=$(grep "waha_dashboard_password=" "$CREDENTIALS_FILE" | cut -d= -f2)
         echo "WAHA:"
         echo "  URL: https://$WAHA_DOMAIN"
-        echo "  Dashboard: admin / $waha_dash_pass"
+        echo "  Dashboard: $WAHA_DASH_USER / $waha_dash_pass"
         echo "  API Key: $(grep "waha_api_key=" "$CREDENTIALS_FILE" | cut -d= -f2)"
         echo
     fi
@@ -987,7 +1001,7 @@ show_credentials() {
         local n8n_pass=$(grep "n8n_password=" "$CREDENTIALS_FILE" | cut -d= -f2)
         echo "N8N:"
         echo "  URL: https://$N8N_DOMAIN"
-        echo "  Login: admin / $n8n_pass"
+        echo "  Login: $N8N_USER / $n8n_pass"
         echo
     fi
     
@@ -1072,8 +1086,24 @@ parse_args() {
                 WAHA_DOMAIN="${1#*=}"
                 shift
                 ;;
+            --waha-user=*)
+                WAHA_DASH_USER="${1#*=}"
+                shift
+                ;;
+            --waha-pass=*)
+                WAHA_DASH_PASS="${1#*=}"
+                shift
+                ;;
             --n8n-domain=*)
                 N8N_DOMAIN="${1#*=}"
+                shift
+                ;;
+            --n8n-user=*)
+                N8N_USER="${1#*=}"
+                shift
+                ;;
+            --n8n-pass=*)
+                N8N_PASS="${1#*=}"
                 shift
                 ;;
             --email=*)
@@ -1108,7 +1138,11 @@ OPÇÕES:
     --skip-ssl             Pula geração de certificados SSL
     --chat-domain=DOMAIN   Define domínio do Chatwoot
     --waha-domain=DOMAIN   Define domínio do WAHA
+    --waha-user=USER       Define usuário do dashboard WAHA
+    --waha-pass=PASS       Define senha do dashboard WAHA
     --n8n-domain=DOMAIN    Define domínio do n8n
+    --n8n-user=USER        Define usuário do n8n
+    --n8n-pass=PASS        Define senha do n8n
     --email=EMAIL          Define email para certificados SSL
     --components=LIST      Define componentes para instalar (chatwoot,waha,n8n)
     -h, --help             Mostra esta ajuda

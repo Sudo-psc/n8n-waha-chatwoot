@@ -1,15 +1,15 @@
 # Relatório de Diagnóstico SSL e Roteamento HTTPS
 
 **Data:** 23/06/2025  
-**Servidor:** 31.97.129.78  
+**Servidor:** 203.0.113.10  
 **Status Geral:** ✅ **TODOS OS SERVIÇOS FUNCIONANDO CORRETAMENTE**
 
 ## 📊 Resumo Executivo
 
 Todos os três serviços estão operacionais com HTTPS funcionando corretamente:
-- ✅ **Chatwoot** (chat.saraivavision.com.br) - HTTPS funcionando
-- ✅ **WAHA** (waha.saraivavision.com.br) - HTTPS funcionando  
-- ✅ **n8n** (n8n.saraivavision.com.br) - HTTPS funcionando
+- ✅ **Chatwoot** (chat.example.com) - HTTPS funcionando
+- ✅ **WAHA** (waha.example.com) - HTTPS funcionando  
+- ✅ **n8n** (n8n.example.com) - HTTPS funcionando
 
 ## 🔍 Detalhes do Diagnóstico
 
@@ -24,16 +24,16 @@ Todos os containers estão rodando e escutando nas portas corretas:
 - ✅ **n8n** - Container ativo, porta 3002 escutando
 
 ### 3. Resolução DNS
-Todos os domínios apontam corretamente para o IP do servidor (31.97.129.78):
-- ✅ chat.saraivavision.com.br → 31.97.129.78
-- ✅ waha.saraivavision.com.br → 31.97.129.78
-- ✅ n8n.saraivavision.com.br → 31.97.129.78
+Todos os domínios apontam corretamente para o IP do servidor (203.0.113.10):
+- ✅ chat.example.com → 203.0.113.10
+- ✅ waha.example.com → 203.0.113.10
+- ✅ n8n.example.com → 203.0.113.10
 
 ### 4. Certificados SSL
 Todos os certificados são válidos e não expiram em breve:
-- ✅ **chat.saraivavision.com.br** - Expira em 19/09/2025
-- ✅ **waha.saraivavision.com.br** - Expira em 19/09/2025
-- ✅ **n8n.saraivavision.com.br** - Expira em 19/09/2025
+- ✅ **chat.example.com** - Expira em 19/09/2025
+- ✅ **waha.example.com** - Expira em 19/09/2025
+- ✅ **n8n.example.com** - Expira em 19/09/2025
 
 ### 5. Configuração Nginx
 - ✅ Configuração válida sem erros de sintaxe
@@ -47,9 +47,9 @@ Todos os certificados são válidos e não expiram em breve:
 - ✅ Chain de certificados válido
 
 #### Testes Externos:
-- ✅ **chat.saraivavision.com.br** - Acessível externamente via HTTPS
-- ✅ **waha.saraivavision.com.br** - Acessível externamente via HTTPS
-- ✅ **n8n.saraivavision.com.br** - Acessível externamente via HTTPS
+- ✅ **chat.example.com** - Acessível externamente via HTTPS
+- ✅ **waha.example.com** - Acessível externamente via HTTPS
+- ✅ **n8n.example.com** - Acessível externamente via HTTPS
 
 ### 7. Portas e Firewall
 - ✅ Todas as portas necessárias estão escutando (80, 443, 3000, 3001, 3002)
@@ -84,6 +84,6 @@ Foram detectadas tentativas de acesso a arquivos sensíveis:
 O sistema está operacional e pronto para uso. As recomendações de segurança são opcionais mas altamente recomendadas para melhorar a proteção do servidor.
 
 ## 🔗 URLs de Acesso
-- **Chatwoot:** https://chat.saraivavision.com.br
-- **WAHA:** https://waha.saraivavision.com.br
-- **n8n:** https://n8n.saraivavision.com.br 
+- **Chatwoot:** https://chat.example.com
+- **WAHA:** https://waha.example.com
+- **n8n:** https://n8n.example.com 

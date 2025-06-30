@@ -19,16 +19,16 @@ warning() { echo -e "${YELLOW}[!]${NC} $*"; }
 [[ $EUID -eq 0 ]] || { echo "Execute como root (sudo)"; exit 1; }
 
 DOMAINS=(
-  "chat.saraivavision.com.br"
-  "waha.saraivavision.com.br"
-  "n8n.saraivavision.com.br"
+  "chat.example.com"
+  "waha.example.com"
+  "n8n.example.com"
 )
 
 # Definir portas dos serviços
 declare -A SERVICE_PORTS=(
-    ["chat.saraivavision.com.br"]="3000"
-    ["waha.saraivavision.com.br"]="3001"
-    ["n8n.saraivavision.com.br"]="3002"
+    ["chat.example.com"]="3000"
+    ["waha.example.com"]="3001"
+    ["n8n.example.com"]="3002"
 )
 
 log "Corrigindo redirecionamento HTTP → HTTPS..."
