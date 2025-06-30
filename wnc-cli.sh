@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wnc-cli.sh - Gerencia stack Chatwoot + WAHA + n8n (v2.0)
-set -euo pipefail
+set -Eeuo pipefail
 
 # Cores para output
 readonly RED='\033[0;31m'
@@ -65,8 +65,9 @@ compose_file() {
 }
 
 service_exists() {
-    local compose=$(compose_file "$1" 2>/dev/null) || return 1
-    [[ -f "$compose" ]]
+  local compose
+  compose=$(compose_file "$1" 2>/dev/null) || return 1
+  [[ -f "$compose" ]]
 }
 
 # Comandos principais
@@ -79,7 +80,7 @@ cmd_install() {
 cmd_uninstall() {
     require_root
     warn "Isso removerá completamente a stack WNC e todos os dados!"
-    read -p "Tem certeza? Digite 'sim' para confirmar: " confirm
+    read -r -p "Tem certeza? Digite 'sim' para confirmar: " confirm
     
     [[ "$confirm" == "sim" ]] || { info "Cancelado."; return; }
     
@@ -95,8 +96,8 @@ cmd_uninstall() {
     
     # Remove configurações do Nginx
     for domain in chat.* waha.* n8n.*; do
-        rm -f /etc/nginx/sites-enabled/$domain
-        rm -f /etc/nginx/sites-available/$domain
+        rm -f "/etc/nginx/sites-enabled/$domain"
+        rm -f "/etc/nginx/sites-available/$domain"
     done
     systemctl reload nginx || true
     
@@ -201,7 +202,7 @@ cmd_credentials() {
             if grep -q "^${service}_" "$CREDENTIALS_FILE" 2>/dev/null; then
                 echo -e "${YELLOW}${service^^}:${NC}"
                 grep "^${service}_" "$CREDENTIALS_FILE" | while IFS='=' read -r key value; do
-                    key_name=${key#${service}_}
+                    key_name=${key#"${service}"_}
                     # Oculta parcialmente valores sensíveis
                     if [[ "$key_name" =~ password|key|secret ]]; then
                         visible_chars=4
@@ -231,7 +232,7 @@ cmd_credentials() {
         
         echo -e "${YELLOW}${service^^}:${NC}"
         grep "^${service}_" "$CREDENTIALS_FILE" | while IFS='=' read -r key value; do
-            key_name=${key#${service}_}
+            key_name=${key#"${service}"_}
             echo "  $key_name: $value"
         done
         echo
@@ -292,7 +293,8 @@ cmd_exec() {
 # Verifica se há atualizações disponíveis
 check_updates() {
     if [[ -f "$SCRIPT_DIR/setup-wnc.sh" ]]; then
-        local current_version=$(grep "SCRIPT_VERSION=" "$SCRIPT_DIR/setup-wnc.sh" | cut -d'"' -f2)
+        local current_version
+        current_version=$(grep "SCRIPT_VERSION=" "$SCRIPT_DIR/setup-wnc.sh" | cut -d'\"' -f2)
         if [[ "$current_version" != "2.0" ]]; then
             warn "Nova versão do instalador disponível! Execute: $0 update"
         fi
