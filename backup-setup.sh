@@ -26,7 +26,21 @@ log(){ echo -e "\e[94m[BACKUP]\e[0m $*"; }
 # 1) Dump Postgres ----------------------------------------------------------------
 info "Dumpando banco Chatwoot…"
 PG_ID=$(docker compose -f $PG_COMPOSE ps -q postgres)
-docker exec -e PGPASSWORD=chatwoot "$PG_ID" pg_dump -U chatwoot -Fc chatwoot \
+
+# Retrieve actual postgres password from credentials file
+CREDENTIALS_FILE="/root/.wnc-credentials"
+if [[ -f "$CREDENTIALS_FILE" ]]; then
+    PG_PASSWORD=$(grep "^chatwoot_postgres_password=" "$CREDENTIALS_FILE" | cut -d'=' -f2)
+    if [[ -z "$PG_PASSWORD" ]]; then
+        error "Não foi possível encontrar a senha do PostgreSQL no arquivo de credenciais"
+        exit 1
+    fi
+else
+    error "Arquivo de credenciais não encontrado: $CREDENTIALS_FILE"
+    exit 1
+fi
+
+docker exec -e PGPASSWORD="$PG_PASSWORD" "$PG_ID" pg_dump -U chatwoot -Fc chatwoot \
   > "${BACKUP_ROOT}/pg/chatwoot_${DATE}.dump"
 # 2) Redis Chatwoot ------------------------------------------------------------
 info "Copiando dados Redis do Chatwoot…"

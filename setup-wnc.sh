@@ -417,10 +417,12 @@ install_chatwoot() {
     # Gera credenciais
     local secret_key=$(openssl rand -hex 64)
     local pg_password=$(openssl rand -hex 16)
+    local redis_password=$(openssl rand -hex 16)
     
     # Salva credenciais
     save_credentials "chatwoot" "secret_key" "$secret_key"
     save_credentials "chatwoot" "postgres_password" "$pg_password"
+    save_credentials "chatwoot" "redis_password" "$redis_password"
     save_credentials "chatwoot" "url" "https://$CHAT_DOMAIN"
     
     # Configuração do ambiente
@@ -436,14 +438,14 @@ POSTGRES_USER=chatwoot
 POSTGRES_USERNAME=chatwoot
 POSTGRES_PASSWORD=$pg_password
 POSTGRES_DB=chatwoot
-REDIS_URL=redis://redis:6379/0
+REDIS_URL=redis://:$redis_password@redis:6379/0
 RAILS_LOG_TO_STDOUT=true
 LOG_LEVEL=info
 ENABLE_ACCOUNT_SIGNUP=false
 EOF
     
     # Configuração do Redis
-    write_config /opt/chatwoot/redis.conf <<'EOF'
+    write_config /opt/chatwoot/redis.conf <<EOF
 # Persistência
 appendonly yes
 save 900 1
@@ -452,7 +454,7 @@ save 60 10000
 
 # Segurança
 protected-mode yes
-requirepass $(openssl rand -hex 16)
+requirepass $redis_password
 
 # Performance
 maxmemory 256mb
@@ -524,7 +526,7 @@ services:
     networks: [$STACK_NET]
     restart: always
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "$redis_password", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -916,7 +918,7 @@ test_installation() {
         info "Testando $name..."
         local code=$(curl -k -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
         
-        if [[ "$code" == "$expected_code" ]] || [[ "$code" == "401" ]] || [[ "$code" == "302 ]]; then
+        if [[ "$code" == "$expected_code" ]] || [[ "$code" == "401" ]] || [[ "$code" == "302" ]]; then
             success "$name respondendo corretamente (HTTP $code)"
             return 0
         else
