@@ -43,7 +43,7 @@ for domain in "${domains[@]}"; do
     echo "📍 Testando: $domain"
     
     # Teste 1: Verificar se o certificado está correto para o domínio
-    cert_subject=$(openssl s_client -connect ${domain}:443 -servername ${domain} </dev/null 2>/dev/null | openssl x509 -noout -subject 2>/dev/null)
+    cert_subject=$(openssl s_client -connect "${domain}":443 -servername "${domain}" </dev/null 2>/dev/null | openssl x509 -noout -subject 2>/dev/null)
     if [[ $cert_subject == *"$domain"* ]]; then
         echo "  ✅ Certificado SNI: Correto ($cert_subject)"
     else
@@ -51,7 +51,7 @@ for domain in "${domains[@]}"; do
     fi
     
     # Teste 2: Verificar se responde via HTTPS
-    https_status=$(curl -s -o /dev/null -w "%{http_code}" https://${domain}/)
+    https_status=$(curl -s -o /dev/null -w "%{http_code}" "https://${domain}/")
     if [[ $https_status == "200" ]]; then
         echo "  ✅ HTTPS Response: OK ($https_status)"
     else
@@ -59,7 +59,7 @@ for domain in "${domains[@]}"; do
     fi
     
     # Teste 3: Verificar redirecionamento HTTP -> HTTPS
-    http_redirect=$(curl -s -o /dev/null -w "%{http_code}" http://${domain}/)
+    http_redirect=$(curl -s -o /dev/null -w "%{http_code}" "http://${domain}/")
     if [[ $http_redirect == "301" ]]; then
         echo "  ✅ HTTP Redirect: OK ($http_redirect)"
     else
@@ -67,7 +67,7 @@ for domain in "${domains[@]}"; do
     fi
     
     # Teste 4: Verificar se o certificado está válido
-    cert_validity=$(openssl s_client -connect ${domain}:443 -servername ${domain} </dev/null 2>/dev/null | openssl x509 -noout -dates 2>/dev/null)
+    cert_validity=$(openssl s_client -connect "${domain}":443 -servername "${domain}" </dev/null 2>/dev/null | openssl x509 -noout -dates 2>/dev/null)
     if [[ -n $cert_validity ]]; then
         echo "  ✅ Certificado: Válido"
         echo "    $(echo "$cert_validity" | grep "notAfter" | cut -d'=' -f2)"
@@ -95,7 +95,8 @@ nginx -T 2>/dev/null | grep "listen.*default_server" | sort | uniq
 echo ""
 echo "📁 Certificados Disponíveis:"
 if [[ -d /etc/letsencrypt/live/ ]]; then
-    ls -la /etc/letsencrypt/live/ | grep "^d" | awk '{print $9}' | grep -v "^\.$\|^\.\.$" | while read cert_dir; do
+    for cert_dir in /etc/letsencrypt/live/*/; do
+        cert_dir=$(basename "$cert_dir")
         if [[ -n $cert_dir ]]; then
             echo "  📜 $cert_dir"
             cert_info=$(openssl x509 -in /etc/letsencrypt/live/${cert_dir}/cert.pem -noout -subject -dates 2>/dev/null)

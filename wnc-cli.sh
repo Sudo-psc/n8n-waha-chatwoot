@@ -56,7 +56,8 @@ require_root() {
 }
 
 compose_file() {
-    case "$1" in
+    local service="$1"
+    case "$service" in
         chatwoot) echo /opt/chatwoot/docker-compose.yml ;;
         waha) echo /opt/waha/docker-compose.yml ;;
         n8n) echo /opt/n8n/docker-compose.yml ;;
@@ -79,7 +80,7 @@ cmd_install() {
 cmd_uninstall() {
     require_root
     warn "Isso removerá completamente a stack WNC e todos os dados!"
-    read -p "Tem certeza? Digite 'sim' para confirmar: " confirm
+    read -r -p "Tem certeza? Digite 'sim' para confirmar: " confirm
     
     [[ "$confirm" == "sim" ]] || { info "Cancelado."; return; }
     
@@ -95,8 +96,8 @@ cmd_uninstall() {
     
     # Remove configurações do Nginx
     for domain in chat.* waha.* n8n.*; do
-        rm -f /etc/nginx/sites-enabled/$domain
-        rm -f /etc/nginx/sites-available/$domain
+        rm -f "/etc/nginx/sites-enabled/$domain"
+        rm -f "/etc/nginx/sites-available/$domain"
     done
     systemctl reload nginx || true
     
@@ -201,7 +202,7 @@ cmd_credentials() {
             if grep -q "^${service}_" "$CREDENTIALS_FILE" 2>/dev/null; then
                 echo -e "${YELLOW}${service^^}:${NC}"
                 grep "^${service}_" "$CREDENTIALS_FILE" | while IFS='=' read -r key value; do
-                    key_name=${key#${service}_}
+                    key_name="${key#"${service}"_}"
                     # Oculta parcialmente valores sensíveis
                     if [[ "$key_name" =~ password|key|secret ]]; then
                         visible_chars=4
@@ -231,7 +232,7 @@ cmd_credentials() {
         
         echo -e "${YELLOW}${service^^}:${NC}"
         grep "^${service}_" "$CREDENTIALS_FILE" | while IFS='=' read -r key value; do
-            key_name=${key#${service}_}
+            key_name="${key#"${service}"_}"
             echo "  $key_name: $value"
         done
         echo
@@ -276,9 +277,11 @@ cmd_exec() {
         error "Serviço '$service' não encontrado"
     fi
     
+    local compose
     compose=$(compose_file "$service")
     
     # Encontra o nome do container principal
+    local container
     case "$service" in
         chatwoot) container="rails" ;;
         waha) container="waha" ;;

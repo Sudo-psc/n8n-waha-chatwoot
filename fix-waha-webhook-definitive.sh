@@ -99,8 +99,8 @@ echo -e "SOLUÇÃO: Configurar processamento correto no n8n"
 echo -e "\n${GREEN}📝 SCRIPT PARA RECONFIGURAR WEBHOOK NO WAHA:${NC}"
 echo "=============================================================="
 
-# Gerar novo webhook URL (exemplo)
-NEW_WEBHOOK="https://n8n.saraivavision.com.br/webhook/waha-messages"
+# Webhook URL para configuração
+# NEW_WEBHOOK="https://n8n.saraivavision.com.br/webhook/waha-messages"
 
 echo -e "\n${BLUE}1️⃣ Remover webhooks atuais:${NC}"
 echo "curl -X DELETE https://waha.saraivavision.com.br/api/sessions/default/webhooks"
@@ -183,14 +183,14 @@ EOF
 echo -e "\n${GREEN}🚀 EXECUÇÃO AUTOMÁTICA DISPONÍVEL:${NC}"
 echo "=============================================================="
 
-read -p "Deseja executar a correção automática? (s/n): " AUTO_FIX
+read -r -p "Deseja executar a correção automática? (s/n): " AUTO_FIX
 
 if [[ $AUTO_FIX == "s" ]] || [[ $AUTO_FIX == "S" ]]; then
     echo -e "\n${YELLOW}🔄 Executando correção automática...${NC}"
     
     # Backup da configuração atual
     echo -e "📁 Fazendo backup da configuração atual..."
-    curl -s https://waha.saraivavision.com.br/api/sessions | jq '.' > webhook_backup_$(date +%Y%m%d_%H%M%S).json
+    curl -s https://waha.saraivavision.com.br/api/sessions | jq '.' > "webhook_backup_$(date +%Y%m%d_%H%M%S).json"
     
     # Remover webhooks atuais
     echo -e "🗑️ Removendo webhooks atuais..."
@@ -233,7 +233,7 @@ echo "docker logs -f waha-waha-1 | grep -E '(webhook|POST|message)'"
 echo -e "\n${YELLOW}Para testar webhook manualmente:${NC}"
 echo 'curl -X POST https://n8n.saraivavision.com.br/webhook/waha-messages \'
 echo '  -H "Content-Type: application/json" \'
-echo '  -d '"'"'{"event":"message","session":"default","data":{"body":"teste"}}'"'"
+echo '  -d '\''{"event":"message","session":"default","data":{"body":"teste"}}'\''
 
 echo -e "\n${GREEN}🎉 Script concluído!${NC}"
 echo -e "${BLUE}💬 Para suporte: philipe_cruz@outlook.com${NC}" 

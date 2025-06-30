@@ -12,7 +12,7 @@ echo -e "${BLUE}=== WNC Stack v2.0 - Demonstração ===${NC}"
 echo
 echo "Este script demonstra as principais funcionalidades da nova versão."
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}1. Modo de Instalação Interativo${NC}"
@@ -27,7 +27,7 @@ echo "  - Opções avançadas (skip DNS, skip SSL)"
 echo
 echo "Comando: ${GREEN}sudo ./setup-wnc.sh${NC}"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}2. Instalação Modular${NC}"
@@ -43,7 +43,7 @@ echo
 echo "Apenas n8n:"
 echo "${GREEN}sudo ./setup-wnc.sh --components=n8n --n8n-domain=n8n.example.com --email=admin@example.com${NC}"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}3. Gestão de Credenciais${NC}"
@@ -64,7 +64,7 @@ echo "  url: https://waha.example.com"
 echo "  dashboard_user: admin"
 echo "  dashboard_password: 1234****5678"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}4. Monitoramento em Tempo Real${NC}"
@@ -77,7 +77,7 @@ echo "  - Status de cada serviço (OK/DOWN)"
 echo "  - Uso de CPU e memória por container"
 echo "  - Atualização automática a cada 2 segundos"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}5. Validação Completa da Instalação${NC}"
@@ -94,7 +94,7 @@ echo "  ✓ Conectividade entre serviços"
 echo "  ✓ Configurações de backup"
 echo "  ✓ Performance básica"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}6. Novos Comandos da CLI${NC}"
@@ -106,7 +106,7 @@ echo "${GREEN}./wnc-cli.sh exec n8n bash${NC}     # Acessa shell do container"
 echo "${GREEN}./wnc-cli.sh logs waha -f${NC}      # Logs em tempo real"
 echo "${GREEN}./wnc-cli.sh status${NC}            # Status colorido e formatado"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}7. Sistema de Rollback${NC}"
@@ -119,7 +119,7 @@ echo "  - Restaura arquivos de backup"
 echo "  - Remove containers/redes criados"
 echo "  - Mantém o sistema no estado anterior"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${YELLOW}8. Modo Debug e Dry-Run${NC}"
@@ -135,7 +135,7 @@ echo
 echo "Combinar ambos:"
 echo "${GREEN}sudo ./setup-wnc.sh --debug --dry-run${NC}"
 echo
-read -p "Pressione ENTER para continuar..."
+read -r -p "Pressione ENTER para continuar..."
 
 clear
 echo -e "${BLUE}=== Principais Melhorias da v2.0 ===${NC}"

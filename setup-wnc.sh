@@ -851,8 +851,8 @@ install_ssl_certificates() {
     ssl_prefer_server_ciphers on;\\
     \\
     # HTTP to HTTPS redirect\\
-    if (\$scheme != \"https\") {\\
-        return 301 https://\$server_name\$request_uri;\\
+    if (\\\$scheme != \\\"https\\\") {\\
+        return 301 https://\\\$server_name\\\$request_uri;\\
     }" "/etc/nginx/sites-available/${domain}"
             
             success "Certificado SSL instalado para $domain"
@@ -916,7 +916,7 @@ test_installation() {
         info "Testando $name..."
         local code=$(curl -k -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
         
-        if [[ "$code" == "$expected_code" ]] || [[ "$code" == "401" ]] || [[ "$code" == "302 ]]; then
+        if [[ "$code" == "$expected_code" ]] || [[ "$code" == "401" ]] || [[ "$code" == "302" ]]; then
             success "$name respondendo corretamente (HTTP $code)"
             return 0
         else
