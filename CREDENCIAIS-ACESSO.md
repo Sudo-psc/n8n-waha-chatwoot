@@ -8,17 +8,17 @@
 
 ### WAHA (WhatsApp HTTP API)
 - **URL:** https://waha.saraivavision.com.br
-- **Dashboard:** 
+ - **Dashboard:**
   - Usuário: `admin`
-  - Senha: `f6d0bac9060286beeab58768`
-- **Swagger API:**
+  - Senha: **[REMOVIDO]**
+ - **Swagger API:**
   - Usuário: `api`
-  - Senha: `b6759f8e45187bd1ec167268`
+  - Senha: **[REMOVIDO]**
 
 ### n8n
 - **URL:** https://n8n.saraivavision.com.br
-- **Usuário:** `admin`
-- **Senha:** `5086781ce4cdfb704954a03d`
+ - **Usuário:** `admin`
+ - **Senha:** **[REMOVIDO]**
 
 ## ⚠️ Importante
 
