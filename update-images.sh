@@ -3,7 +3,7 @@
 # Uso: sudo ./update-images.sh [servico] [tag]
 # Servicos: chatwoot | waha | n8n | all
 
-set -euo pipefail
+set -Eeuo pipefail
 log(){ echo -e "\e[33m[UPDATE]\e[0m $*"; }
 [[ $EUID -eq 0 ]] || { echo "[ERRO] Rode como root"; exit 1; }
 
@@ -33,7 +33,7 @@ update_service(){
 
 main(){
   if [[ $# -eq 0 || $1 == all ]]; then
-    for svc in ${!COMPOSE_PATHS[@]}; do
+    for svc in "${!COMPOSE_PATHS[@]}"; do
       update_service "$svc" "${2:-latest}"
     done
   else

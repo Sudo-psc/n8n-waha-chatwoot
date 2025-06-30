@@ -1,0 +1,13 @@
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# Dependency directories
+node_modules/
+venv/
+
+# System files
+.DS_Store
