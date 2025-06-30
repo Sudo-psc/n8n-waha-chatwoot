@@ -17,8 +17,8 @@ echo "============================================================"
 # Verificar se os serviços estão rodando
 echo -e "\n${YELLOW}📋 Verificando status dos serviços...${NC}"
 
-WAHA_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://waha.saraivavision.com.br/api/sessions)
-N8N_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://n8n.saraivavision.com.br/)
+WAHA_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://waha.example.com/api/sessions)
+N8N_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://n8n.example.com/)
 
 if [[ $WAHA_STATUS == "200" ]]; then
     echo -e "✅ WAHA está funcionando"
@@ -38,12 +38,12 @@ fi
 echo -e "\n${YELLOW}🔍 Diagnosticando problema atual...${NC}"
 
 # Buscar webhooks configurados
-WEBHOOK_INFO=$(curl -s https://waha.saraivavision.com.br/api/sessions | jq -r '.[0].config.webhooks[]')
+WEBHOOK_INFO=$(curl -s https://waha.example.com/api/sessions | jq -r '.[0].config.webhooks[]')
 echo -e "Webhooks atuais configurados:"
 echo "$WEBHOOK_INFO" | jq .
 
 # Testar webhook atual
-WEBHOOK_URL=$(curl -s https://waha.saraivavision.com.br/api/sessions | jq -r '.[0].config.webhooks[0].url')
+WEBHOOK_URL=$(curl -s https://waha.example.com/api/sessions | jq -r '.[0].config.webhooks[0].url')
 if [[ -n "$WEBHOOK_URL" ]]; then
     echo -e "\n${YELLOW}🧪 Testando webhook atual: $WEBHOOK_URL${NC}"
     
@@ -83,7 +83,7 @@ echo "=========================================================="
 echo -e "\n${YELLOW}🎯 PROBLEMA 1: Webhook n8n configurado incorretamente${NC}"
 echo -e "CAUSA: Webhook foi criado como 'teste' que só aceita GET"
 echo -e "SOLUÇÃO:"
-echo -e "1. Acesse: https://n8n.saraivavision.com.br"
+echo -e "1. Acesse: https://n8n.example.com"
 echo -e "2. Crie um NOVO workflow"
 echo -e "3. Adicione trigger 'Webhook' (NÃO 'Webhook for testing')"
 echo -e "4. Configure:"
@@ -100,17 +100,17 @@ echo -e "\n${GREEN}📝 SCRIPT PARA RECONFIGURAR WEBHOOK NO WAHA:${NC}"
 echo "=============================================================="
 
 # Gerar novo webhook URL (exemplo)
-NEW_WEBHOOK="https://n8n.saraivavision.com.br/webhook/waha-messages"
+NEW_WEBHOOK="https://n8n.example.com/webhook/waha-messages"
 
 echo -e "\n${BLUE}1️⃣ Remover webhooks atuais:${NC}"
-echo "curl -X DELETE https://waha.saraivavision.com.br/api/sessions/default/webhooks"
+echo "curl -X DELETE https://waha.example.com/api/sessions/default/webhooks"
 
 echo -e "\n${BLUE}2️⃣ Configurar novo webhook:${NC}"
 cat << 'EOF'
-curl -X POST https://waha.saraivavision.com.br/api/sessions/default/webhooks \
+curl -X POST https://waha.example.com/api/sessions/default/webhooks \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://n8n.saraivavision.com.br/webhook/waha-messages",
+    "url": "https://n8n.example.com/webhook/waha-messages",
     "events": ["message", "session.status"],
     "retries": {
       "delaySeconds": 2,
@@ -190,17 +190,17 @@ if [[ $AUTO_FIX == "s" ]] || [[ $AUTO_FIX == "S" ]]; then
     
     # Backup da configuração atual
     echo -e "📁 Fazendo backup da configuração atual..."
-    curl -s https://waha.saraivavision.com.br/api/sessions | jq '.' > webhook_backup_$(date +%Y%m%d_%H%M%S).json
+    curl -s https://waha.example.com/api/sessions | jq '.' > webhook_backup_$(date +%Y%m%d_%H%M%S).json
     
     # Remover webhooks atuais
     echo -e "🗑️ Removendo webhooks atuais..."
-    curl -s -X DELETE https://waha.saraivavision.com.br/api/sessions/default/webhooks
+    curl -s -X DELETE https://waha.example.com/api/sessions/default/webhooks
     
     sleep 2
     
     # Configurar novo webhook temporário para teste
     echo -e "⚙️ Configurando webhook de teste..."
-    WEBHOOK_RESPONSE=$(curl -s -X POST https://waha.saraivavision.com.br/api/sessions/default/webhooks \
+    WEBHOOK_RESPONSE=$(curl -s -X POST https://waha.example.com/api/sessions/default/webhooks \
       -H "Content-Type: application/json" \
       -d '{
         "url": "https://webhook.site/unique-id-here",
@@ -218,7 +218,7 @@ if [[ $AUTO_FIX == "s" ]] || [[ $AUTO_FIX == "S" ]]; then
     echo -e "${YELLOW}⚠️ PRÓXIMOS PASSOS MANUAIS:${NC}"
     echo -e "1. Configure o workflow no n8n conforme instruções acima"
     echo -e "2. Teste o webhook com uma mensagem no WhatsApp"
-    echo -e "3. Execute: curl -X POST https://waha.saraivavision.com.br/api/sessions/default/webhooks com a URL correta do n8n"
+    echo -e "3. Execute: curl -X POST https://waha.example.com/api/sessions/default/webhooks com a URL correta do n8n"
 else
     echo -e "\n${BLUE}ℹ️ Correção manual necessária${NC}"
     echo -e "Siga as instruções acima para configurar manualmente"
@@ -231,7 +231,7 @@ echo -e "\n${YELLOW}Para monitorar webhooks em tempo real:${NC}"
 echo "docker logs -f waha-waha-1 | grep -E '(webhook|POST|message)'"
 
 echo -e "\n${YELLOW}Para testar webhook manualmente:${NC}"
-echo 'curl -X POST https://n8n.saraivavision.com.br/webhook/waha-messages \'
+echo 'curl -X POST https://n8n.example.com/webhook/waha-messages \'
 echo '  -H "Content-Type: application/json" \'
 echo '  -d '"'"'{"event":"message","session":"default","data":{"body":"teste"}}'"'"
 

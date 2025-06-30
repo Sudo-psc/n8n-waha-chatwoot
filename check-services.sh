@@ -16,9 +16,9 @@ trap 'error "Linha $LINENO: comando \"$BASH_COMMAND\" falhou"' ERR
 [[ $EUID -eq 0 ]] || { error "Rode como root"; exit 1; }
 
 declare -A urls=(
-  [Chatwoot]="https://chat.saraivavision.com.br"
-  [WAHA]="https://waha.saraivavision.com.br"
-  [n8n]="https://n8n.saraivavision.com.br"
+  [Chatwoot]="https://chat.example.com"
+  [WAHA]="https://waha.example.com"
+  [n8n]="https://n8n.example.com"
 )
 
 info "Portas em escuta (22,80,443,3000-3002)"

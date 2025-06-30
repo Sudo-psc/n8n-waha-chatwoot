@@ -23,9 +23,9 @@ done
 
 # Domínios utilizados nos testes
 DOMAINS=(
-  "chat.saraivavision.com.br"
-  "waha.saraivavision.com.br"
-  "n8n.saraivavision.com.br"
+  "chat.example.com"
+  "waha.example.com"
+  "n8n.example.com"
 )
 
 # Verifica validade do certificado SSL de um domínio

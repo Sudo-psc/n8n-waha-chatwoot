@@ -5,16 +5,16 @@
 Se você está vendo o erro **"This site can't provide a secure connection"** ou **"ERR_SSL_PROTOCOL_ERROR"**, é porque você está tentando acessar os serviços pelo IP em vez dos domínios.
 
 ### ❌ FORMA ERRADA:
-- https://31.97.129.78 ❌
-- http://31.97.129.78 ❌
+- https://203.0.113.10 ❌
+- http://203.0.113.10 ❌
 
 ### ✅ FORMA CORRETA:
 
 Use sempre os domínios completos:
 
-- **Chatwoot:** https://chat.saraivavision.com.br ✅
-- **WAHA:** https://waha.saraivavision.com.br ✅
-- **n8n:** https://n8n.saraivavision.com.br ✅
+- **Chatwoot:** https://chat.example.com ✅
+- **WAHA:** https://waha.example.com ✅
+- **n8n:** https://n8n.example.com ✅
 
 ## 🔍 Por que isso acontece?
 
@@ -25,15 +25,15 @@ Use sempre os domínios completos:
 ## 🚀 Solução Implementada
 
 Foi configurado um redirecionamento automático:
-- Se você acessar http://31.97.129.78 → será redirecionado para https://chat.saraivavision.com.br
-- Se você acessar https://31.97.129.78 → também será redirecionado (mas pode mostrar aviso de segurança primeiro)
+- Se você acessar http://203.0.113.10 → será redirecionado para https://chat.example.com
+- Se você acessar https://203.0.113.10 → também será redirecionado (mas pode mostrar aviso de segurança primeiro)
 
 ## 📝 Dica
 
 Salve os links corretos nos seus favoritos:
-- https://chat.saraivavision.com.br
-- https://waha.saraivavision.com.br
-- https://n8n.saraivavision.com.br
+- https://chat.example.com
+- https://waha.example.com
+- https://n8n.example.com
 
 ## 🔒 Segurança
 

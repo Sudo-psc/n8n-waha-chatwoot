@@ -27,16 +27,16 @@ info() { echo -e "${BLUE}[i]${NC} $*"; }
 
 # Domínios para verificar
 DOMAINS=(
-  "chat.saraivavision.com.br"
-  "waha.saraivavision.com.br"
-  "n8n.saraivavision.com.br"
+  "chat.example.com"
+  "waha.example.com"
+  "n8n.example.com"
 )
 
 # Portas dos serviços
 declare -A SERVICE_PORTS=(
-  ["chat.saraivavision.com.br"]="3000"
-  ["waha.saraivavision.com.br"]="3001"
-  ["n8n.saraivavision.com.br"]="3002"
+  ["chat.example.com"]="3000"
+  ["waha.example.com"]="3001"
+  ["n8n.example.com"]="3002"
 )
 
 echo -e "\n${CYAN}═══════════════════════════════════════════════════════════════${NC}"
