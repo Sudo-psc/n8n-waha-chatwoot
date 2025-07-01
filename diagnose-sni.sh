@@ -97,10 +97,10 @@ echo "📁 Certificados Disponíveis:"
 if [[ -d /etc/letsencrypt/live/ ]]; then
     for cert_dir in /etc/letsencrypt/live/*/; do
         cert_dir=$(basename "$cert_dir")
-        if [[ -n $cert_dir ]]; then
+        if [[ -n "$cert_dir" ]]; then
             echo "  📜 $cert_dir"
-            cert_info=$(openssl x509 -in /etc/letsencrypt/live/${cert_dir}/cert.pem -noout -subject -dates 2>/dev/null)
-            if [[ -n $cert_info ]]; then
+            cert_info=$(openssl x509 -in "/etc/letsencrypt/live/${cert_dir}/cert.pem" -noout -subject -dates 2>/dev/null)
+            if [[ -n "$cert_info" ]]; then
                 echo "    $(echo "$cert_info" | grep "subject")"
                 echo "    $(echo "$cert_info" | grep "notAfter")"
             fi
@@ -122,7 +122,7 @@ for domain in "${domains[@]}"; do
     echo "🔗 Testando $domain via IP:"
     
     # Teste com header Host
-    response=$(curl -H "Host: ${domain}" -k -s -o /dev/null -w "%{http_code}" https://${server_ip}/ 2>/dev/null)
+    response=$(curl -H "Host: ${domain}" -k -s -o /dev/null -w "%{http_code}" "https://${server_ip}/" 2>/dev/null)
     if [[ $response == "200" ]] || [[ $response == "301" ]]; then
         echo "  ✅ Host Header: OK ($response)"
     else
@@ -139,7 +139,7 @@ working_domains=0
 total_domains=${#domains[@]}
 
 for domain in "${domains[@]}"; do
-    status=$(curl -s -o /dev/null -w "%{http_code}" https://${domain}/)
+    status=$(curl -s -o /dev/null -w "%{http_code}" "https://${domain}/")
     if [[ $status == "200" ]]; then
         ((working_domains++))
     fi

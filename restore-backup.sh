@@ -13,7 +13,7 @@ log(){ echo -e "\e[95m[REST]\e[0m $*"; }
 # localiza o dump mais recente se nenhuma data for passada
 DATE=${1:-latest}
 if [[ "$DATE" == "latest" ]]; then
-  DUMP=$(ls -1t ${BACKUP_ROOT}/pg/chatwoot_*.dump | head -n1)
+  DUMP=$(find "${BACKUP_ROOT}/pg/" -name "chatwoot_*.dump" -type f -printf '%T@ %p\n' | sort -nr | head -n1 | cut -d' ' -f2-)
 else
   DUMP="${BACKUP_ROOT}/pg/chatwoot_${DATE}.dump"
 fi

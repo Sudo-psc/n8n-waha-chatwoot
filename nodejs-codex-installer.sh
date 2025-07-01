@@ -11,6 +11,7 @@ SCRIPT_NAME=$(basename "$0" .sh)
 LOG_FILE="/var/log/${SCRIPT_NAME}.log"
 mkdir -p "$(dirname "$LOG_FILE")" && touch "$LOG_FILE"
 log()   { echo "$(date '+%F %T') [INFO] $*" | tee -a "$LOG_FILE"; }
+info()  { echo "$(date '+%F %T') [INFO] $*" | tee -a "$LOG_FILE"; }
 warn()  { echo "$(date '+%F %T') [WARN] $*" | tee -a "$LOG_FILE"; }
 err()   { echo "$(date '+%F %T') [FAIL] $*" | tee -a "$LOG_FILE"; exit 1; }
 

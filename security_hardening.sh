@@ -17,7 +17,7 @@ trap 'error "Linha $LINENO: comando \"$BASH_COMMAND\" falhou"' ERR
 
 info "Instalando unattended-upgrades…"
 DEBIAN_FRONTEND=noninteractive apt-get install -y unattended-upgrades >/dev/null
-dpkg-reconfigure --priority=low unattended-upgrades
+DEBIAN_FRONTEND=noninteractive dpkg-reconfigure --priority=low unattended-upgrades
 
 info "Endurecendo SSH…"
 cp -a /etc/ssh/sshd_config{,.bak.$(date +%F)}
