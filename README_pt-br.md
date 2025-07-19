@@ -1,6 +1,4 @@
 # WNC Stack - Chatwoot + WAHA + n8n
-(English documentation available in README_en.md)
-
 
 ## 🚀 Versão 2.0 - Instalador Melhorado
 
