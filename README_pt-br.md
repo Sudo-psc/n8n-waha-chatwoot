@@ -1,6 +1,4 @@
 # WNC Stack - Chatwoot + WAHA + n8n
-(English documentation available in README_en.md)
-
 
 ## 🚀 Versão 2.0 - Instalador Melhorado
 
@@ -117,25 +115,6 @@ sudo ./setup-wnc.sh --components=n8n \
 
 # Executar comando em container
 ./wnc-cli.sh exec n8n bash
-```
-
-## 💻 Gerenciador de Scripts
-
-Utilitário para descobrir e executar scripts do repositório.
-
-```bash
-cd cli-script-manager
-./main.sh --list
-```
-
-Modo interativo:
-```bash
-./main.sh --interactive
-```
-
-Gerar documentação:
-```bash
-./main.sh --update-docs
 ```
 
 ## 🔐 Credenciais e Acessos
@@ -275,7 +254,6 @@ sudo tail -f /var/log/nginx/error.log
 | `fail2ban_setup.sh` | Proteção contra força bruta |
 | `security_hardening.sh` | Hardening de segurança |
 | `monitoring_setup.sh` | Setup de monitoramento |
-| `cli-script-manager/main.sh` | Gerenciador de scripts |
 
 ## 🤝 Contribuindo
 
