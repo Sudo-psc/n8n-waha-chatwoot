@@ -117,6 +117,25 @@ sudo ./setup-wnc.sh --components=n8n \
 ./wnc-cli.sh exec n8n bash
 ```
 
+## 💻 Gerenciador de Scripts
+
+Utilitário para descobrir e executar scripts do repositório.
+
+```bash
+cd cli-script-manager
+./main.sh --list
+```
+
+Modo interativo:
+```bash
+./main.sh --interactive
+```
+
+Gerar documentação:
+```bash
+./main.sh --update-docs
+```
+
 ## 🔐 Credenciais e Acessos
 
 Após a instalação, as credenciais são salvas em `/root/.wnc-credentials`.
@@ -254,6 +273,7 @@ sudo tail -f /var/log/nginx/error.log
 | `fail2ban_setup.sh` | Proteção contra força bruta |
 | `security_hardening.sh` | Hardening de segurança |
 | `monitoring_setup.sh` | Setup de monitoramento |
+| `cli-script-manager/main.sh` | Gerenciador de scripts |
 
 ## 🤝 Contribuindo
 
