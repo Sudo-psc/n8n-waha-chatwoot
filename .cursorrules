@@ -35,8 +35,6 @@
    - `wnc-cli.sh` - CLI para gerenciamento
    - `test-waha-dashboard.sh` - Teste completo do dashboard WAHA
    - `test-chatwoot.sh` - Teste completo do Chatwoot
-   - `diagnose-sni.sh` - Diagnóstico completo de SNI e SSL
-   - `fix-waha-webhook.sh` - Correção de problemas webhook WAHA→n8n
    - `setup-n8n-webhook.sh` - Instruções para configurar webhook no n8n
    - Scripts de backup e restore
 
